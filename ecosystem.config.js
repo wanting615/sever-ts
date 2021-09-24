@@ -26,7 +26,7 @@ module.exports = {
       },
       ssh_options: "StrictHostKeyChecking=no",
       'pre-deploy-local': "echo '生产环境部署中'",
-      'post-deploy': 'npm install && npm run build-ts && pm2 restart ecosystem.config.js --env production',
+      'post-deploy': 'pm2 restart ecosystem.config.js --env production',
     }
   }
 };
