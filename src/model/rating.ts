@@ -85,10 +85,10 @@ class Rating {
   @prop({ required: true })
   restaurant_id: number;
 
-  @prop({ ref: () => Tag })
-  tags: Ref<Tag[]>;
+  @prop({ type: Tag })
+  tags: Tag[];
 
-  @prop({ ref: () => Score })
+  @prop({ type: Score })
   scores: Score;
 
   @prop({ type: RatingIDetail })

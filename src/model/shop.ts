@@ -123,8 +123,8 @@ class ShopMenu {
   @prop({ default: 1 })
   type: string;
 
-  @prop({ ref: () => Food })
-  identification: Ref<Food>;
+  @prop({ type: Food })
+  identification: Food;
 
   //获取商铺食品--按分类
   public static async getShopMenu(this: ReturnModelType<typeof ShopMenu>, shopId: number) {

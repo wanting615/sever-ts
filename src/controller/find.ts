@@ -43,9 +43,10 @@ export default class FindController {
 
   @request('get', '/getFind')
   @summary('获取发现')
-  async getFinds(ctx: Context) {
+  public static async getFindAll(ctx: Context) {
     const { page = 1, limit = 10 } = ctx.request.query;
     try {
+      console.log(FindModel)
       const results = await FindModel.getFinds(Number(page), Number(limit));
       for (let i = 0; i < results.length; i++) {
         const shop = await ShopModel.getShopById(results[i].shopId);

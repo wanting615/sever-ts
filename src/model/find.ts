@@ -1,4 +1,4 @@
-import { getModelForClass, index, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
+import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
 
 @modelOptions({ schemaOptions: { _id: false } })
 class ReplaysDetail {
@@ -68,4 +68,4 @@ class Find {
 
 const FindModel = getModelForClass(Find);
 
-export { FindModel }
+export { FindModel };

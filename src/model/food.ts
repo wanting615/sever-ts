@@ -11,8 +11,8 @@ class Specification {
   @prop({ default: '' })
   name: string
 
-  @prop({ default: [] })
-  values: Array<string>
+  @prop({ type: String, default: [] })
+  values: string[]
 }
 class Activity {
   @prop({ default: '' })
@@ -23,6 +23,13 @@ class Activity {
 
   @prop({ default: '' })
   image_text: string
+}
+
+class Spec {
+  @prop()
+  name: string;//规格名称
+  @prop()
+  value: string;//规格名称
 }
 
 class Specfood {
@@ -80,16 +87,9 @@ class Specfood {
   @prop()
   stock: number;//库存数量
 
-  @prop({ ref: () => Spec })
-  specs: Ref<Spec>;
+  @prop({ type: Spec })
+  specs: Spec;
 
-}
-
-class Spec {
-  @prop()
-  name: string;//规格名称
-  @prop()
-  value: string;//规格名称
 }
 
 @index({ id: 1 })
@@ -149,19 +149,19 @@ class Food {
   @prop({ default: 0 })
   satisfy_rate: number;
 
-  @prop({ ref: () => Attribute })
-  attributes: Ref<Attribute>[];
+  @prop({ type: Attribute })
+  attributes: Attribute[];
 
-  @prop({ ref: () => Specification })
-  specifications: Ref<Specification>[];
+  @prop({ type: Specification })
+  specifications: Specification[];
 
   @prop()
   limitation: any;
 
-  @prop({ ref: () => Activity })
+  @prop({ type: Activity })
   activity: Activity;
 
-  @prop({ ref: () => Specfood })
+  @prop({ type: Specfood })
   specfoods: Specfood[];
 
   @prop()
