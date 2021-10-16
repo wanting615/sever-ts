@@ -8,8 +8,8 @@ class DescMap {
   @prop({ required: true })
   online_paid_only: string;//限制在线使用
 
-  @prop({ required: true })
-  validity_delta: string;//多少天后使用
+  @prop()
+  validity_delta?: string;//多少天后使用
 
   @prop({ required: true })
   validity_periods: string;//什么时候到期
@@ -81,8 +81,6 @@ class Hongbao {
       }
     }
   }
-
-
 }
 
 export const HongbaoModel = getModelForClass(Hongbao);

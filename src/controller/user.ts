@@ -5,8 +5,8 @@ import { IdsModel } from "../model/ids";
 import RsaDecrypt from "../until/rsa";
 import Address from "../until/address";
 import { useFormatTime } from "../until/formater";
+import { needLogin } from "../middleware/checkPermission";
 import { Result } from "../types/result";
-import { needLogin } from "../middleware/checkPermission"
 
 @prefix("/user")
 export default class UserController {

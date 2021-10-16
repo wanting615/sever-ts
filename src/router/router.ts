@@ -10,6 +10,7 @@ router.swagger({
 })
 
 router.mapDir(path.resolve(__dirname, "../controller"));
+router.mapDir(path.resolve(__dirname, "../wxController"));
 export { router };
 
 // import Koa from "koa";

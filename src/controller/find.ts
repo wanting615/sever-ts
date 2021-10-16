@@ -1,11 +1,11 @@
 import { Context } from 'koa';
 import { body, middlewares, query, request, summary } from "koa-swagger-decorator";
-import { Result } from './../types/result.d';
-import { FindModel } from "../model/find";
+import { FindModel } from "../model/finds";
 import { IdsModel } from "../model/ids";
 import { ShopModel } from '../model/shop';
 import { needLogin } from '../middleware/checkPermission';
 import { UserInfoModel } from '../model/user';
+import { Result } from '../types/result';
 
 export default class FindController {
   @request('post', '/addFind')

@@ -24,7 +24,7 @@ class ReplaysDetail {
   praises?: number;
 }
 
-@modelOptions({ options: { customName: 'finds', allowMixed: 0 }, schemaOptions: { _id: false } })
+@modelOptions({ options: { allowMixed: 0 }, schemaOptions: { _id: false, collection: 'finds' } })
 class Find {
   @prop({ required: true })
   id: number;
@@ -54,15 +54,15 @@ class Find {
   shopInfo?: any
 
   public static async getFinds(this: ReturnModelType<typeof Find>, page: number = 1, limit: number = 10) {
-    return this.find({}, { _id: 0, __v: 0 }).sort({ time: -1 }).limit(limit).skip((page - 1) * limit);
+    return await this.find({}, { _id: 0, __v: 0 }).sort({ time: -1 }).limit(limit).skip((page - 1) * limit);
   }
 
   public static async getFindById(this: ReturnModelType<typeof Find>, id: number) {
-    return this.findOne({ id })
+    return await this.findOne({ id })
   }
 
   public static async getFindByShopId(this: ReturnModelType<typeof Find>, shopId: number) {
-    return this.find({ shopId })
+    return await this.find({ shopId })
   }
 }
 

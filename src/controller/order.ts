@@ -5,7 +5,7 @@ import { OrderModel } from "../model/order";
 import { ShopModel } from '../model/shop';
 import { UserAddressModel } from '../model/user';
 import { IdsModel } from '../model/ids';
-import { Result } from './../types/result.d';
+import { Result } from './../types/result';
 import { createOrderId } from '../until/formater';
 import { FoodModel } from '../model/food';
 import { HongbaoModel } from '../model/hongbao';

@@ -5,6 +5,7 @@ import cors from "@koa/cors";
 import json from 'koa-json';
 import koaStatic from "koa-static";
 import KoaLogger from "koa-logger";
+import fs from "fs";
 
 import path from "path";
 import moment from "moment";
@@ -14,6 +15,7 @@ import db from "./config/db";
 import { PathName } from './config/path';
 import { router } from "./router/router"
 import { config } from "./config/config"
+
 
 
 
@@ -68,20 +70,22 @@ app.on('error', (err, ctx) => {
 //注册路由
 app.use(router.routes())
 
-//images
-// app.use(async (ctx) => {
-//   let filePath = path.join(__dirname, ctx.url);
-//   let file = null;
-//   try {
-//     file = fs.readFileSync(filePath);
-//   } catch (error) {
-//     filePath = path.join(__dirname, PathName.LOSTIMAGE);
-//     file = fs.readFileSync(filePath);
-//   }
-//   let mineType = mime.lookup(filePath);
-//   ctx.set('content-type', mineType);
-//   ctx.body = file;
-// })
+//html
+app.use(async (ctx) => {
+  //处理访问html页
+  if (!ctx.url || ctx.url.indexOf("html") !== -1) {
+    let filePath = path.join(__dirname, "/public/static" + ctx.url);
+    let file = null;
+    try {
+      file = fs.readFileSync(filePath);
+    } catch (error) {
+      filePath = path.join(__dirname, PathName.LOSTIMAGE);
+      file = fs.readFileSync(filePath);
+    }
+    ctx.set('content-type', 'text/html');
+    ctx.body = file;
+  }
+})
 app.use(koaStatic(path.join(__dirname, "./")))
 
 app.listen(config.port);

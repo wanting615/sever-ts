@@ -1,10 +1,10 @@
 import { Context } from 'koa';
 import { request, summary, path } from "koa-swagger-decorator";
 import { Filter, SortWay } from '../types/shop';
-import { Result } from '../types/result';
 import { CategoryModel } from "../model/category";
 import { ShopMenuModel, ShopModel, Shops } from '../model/shop';
 import Address from "../until/address";
+import { Result } from '../types/result';
 
 export default class ShopController {
   @request('get', '/shops/list')

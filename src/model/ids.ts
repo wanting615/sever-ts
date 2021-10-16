@@ -31,6 +31,10 @@ class Id {
   public find_id: number;
   @prop()
   public hongbao_id: number;
+  @prop()
+  public wx_type_id: number;//微信小程序type id
+  @prop()
+  public wx_id: number;//微信小程序知识积累id
 
   //获取自增id
   public static async getIds(this: ReturnModelType<typeof Id>, id: IdsList): Promise<number> {

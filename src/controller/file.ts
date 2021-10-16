@@ -3,7 +3,6 @@ import { body, middlewares, query, request, summary } from "koa-swagger-decorato
 import fs from 'fs';
 import path from "path";
 import crypto from 'crypto';
-import { Result } from './../types/result.d';
 import { needLogin } from '../middleware/checkPermission';
 import { FileModel } from '../model/file';
 import { localPath } from '../config/path';
