@@ -3,4 +3,4 @@ export const PathName = {
   "LOSTIMAGE": '/public/static/index.html',
   "FILEPATH": "/public/files/"
 }
-export const localPath = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "http://121.5.32.253:3000";
+export const localPath = process.env.NODE_ENV === "product" ? "http://121.5.32.253:3000" : "http://localhost:3000";

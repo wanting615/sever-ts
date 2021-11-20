@@ -70,10 +70,13 @@ app.on('error', (err, ctx) => {
 //注册路由
 app.use(router.routes())
 
+
+app.use(koaStatic(__dirname + '/public'));
+app.use(koaStatic(__dirname + '/public/static'));
 //html
-app.use(async (ctx) => {
+app.use(async (ctx, next) => {
   //处理访问html页
-  if (!ctx.url || ctx.url.indexOf("html") !== -1) {
+  if (!ctx.url || ctx.url === "/" || ctx.url.indexOf("html") !== -1) {
     let filePath = path.join(__dirname, "/public/static" + ctx.url);
     let file = null;
     try {
@@ -85,7 +88,7 @@ app.use(async (ctx) => {
     ctx.set('content-type', 'text/html');
     ctx.body = file;
   }
+  next();
 })
-app.use(koaStatic(path.join(__dirname, "./")))
 
 app.listen(config.port);

@@ -1,5 +1,5 @@
 import { Context } from 'koa';
-import { body, middlewares, query, request, summary } from "koa-swagger-decorator";
+import { query, request, summary } from "koa-swagger-decorator";
 import fs from 'fs';
 import path from "path";
 import crypto from 'crypto';
@@ -18,7 +18,7 @@ export default class FindController {
       // 创建可读流
       if (Array.isArray(file)) { return };
       const reader = fs.createReadStream(file.path);
-      const filePath = path.join("./", 'public/files/') + `${file.name}`;
+      const filePath = path.join(path.resolve(__dirname, ".."), 'public/files/') + `${file.name}`;
       //生成hash 校验是否上传相同文件
       const fsHash = crypto.createHash('md5');
       const buffer = fs.readFileSync(file.path);
@@ -27,15 +27,15 @@ export default class FindController {
       console.log('文件的MD5是：%s', fileHash);
 
       const result = await FileModel.findFilesByFileHash(fileHash);
-      if (!params.shopId) { ctx.body = { status: false, message: '商店id不能为空' }; return; }
+      // if (!params.shopId) { ctx.body = { status: false, message: '商店id不能为空' }; return; }
       if (!result) {
         // const addResult = await FileModel.addFiles(Number(params.userId), Number(params.shopId), params.projectId, file.name, filePath, file.type, fileHash, file.size);
         const addResult = new FileModel({
-          user_id: Number(params.userId),
-          shop_id: Number(params.shopId),
-          proId: params.projectId,
+          user_id: Number(1),
+          shop_id: Number(1),
+          proId: 1,
           fileName: file.name,
-          filePath,
+          filePath: `files/${file.name}`,
           fileType: file.type,
           fileHash,
           size: file.size

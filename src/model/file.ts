@@ -1,6 +1,6 @@
 import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
 
-@modelOptions({ options: { customName: 'finds', allowMixed: 0 }, schemaOptions: { _id: false } })
+@modelOptions({ options: { customName: 'finds', allowMixed: 0 } })
 class File {
   @prop({ required: true })
   user_id: number;//用户id

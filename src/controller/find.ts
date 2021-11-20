@@ -50,13 +50,15 @@ export default class FindController {
       const results = await FindModel.getFinds(Number(page), Number(limit));
       for (let i = 0; i < results.length; i++) {
         const shop = await ShopModel.getShopById(results[i].shopId);
-        results[i].shopInfo = {
-          name: shop.name,
-          image_path: shop.image_path,
-          rating: shop.rating,
-          activities: shop.activities,
-          is_premium: shop.is_premium,
-          order_lead_time: Math.floor(Math.random() * (11) + 30),
+        if (shop) {
+          results[i].shopInfo = {
+            name: shop.name,
+            image_path: shop.image_path,
+            rating: shop.rating,
+            activities: shop.activities,
+            is_premium: shop.is_premium,
+            order_lead_time: Math.floor(Math.random() * (11) + 30),
+          }
         }
       }
       ctx.body = {
