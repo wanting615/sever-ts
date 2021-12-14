@@ -20,7 +20,7 @@ module.exports = {
       }],
       ref: 'origin/master',
       repo: 'git@github.com:wanting615/sever-ts.git',
-      path: '/www/elm/',
+      path: '/www/app-server/',
       env: {
         "NODE_ENV": "production"
       },
