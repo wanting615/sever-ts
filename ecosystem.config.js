@@ -8,6 +8,11 @@ module.exports = {
     log_date_format: "YYYY-MM-DD HH:mm Z", //日期格式
     env_production: {
       "NODE_ENV": "production" // 环境变量
+    },
+    env_production: {
+      NODE_ENV: 'production',
+      HOST: '127.0.0.0',
+      PORT: 3000,
     }
   }],
 
@@ -26,7 +31,7 @@ module.exports = {
       },
       ssh_options: "StrictHostKeyChecking=no",
       'pre-deploy-local': "echo '生产环境部署中'",
-      'post-deploy': 'pm2 restart ecosystem.config.js --env production',
+      'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
     }
   }
 };
