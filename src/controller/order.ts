@@ -1,23 +1,23 @@
-import { Context } from 'koa';
+import { Context } from "koa";
 import { body, middlewaresAll, query, request, summary } from "koa-swagger-decorator";
-import { needLogin } from './../middleware/checkPermission';
+import { needLogin } from "./../middleware/checkPermission";
 import { OrderModel } from "../model/order";
-import { ShopModel } from '../model/shop';
-import { UserAddressModel } from '../model/user';
-import { IdsModel } from '../model/ids';
-import { Result } from './../types/result';
-import { createOrderId } from '../until/formater';
-import { FoodModel } from '../model/food';
-import { HongbaoModel } from '../model/hongbao';
+import { ShopModel } from "../model/shop";
+import { UserAddressModel } from "../model/user";
+import { IdsModel } from "../model/ids";
+import { Result } from "./../types/result";
+import { createOrderId } from "../until/formater";
+import { FoodModel } from "../model/food";
+import { HongbaoModel } from "../model/hongbao";
 
 @middlewaresAll([needLogin])
 export default class OrderController {
-  @request('get', '/orders')
-  @summary('获取订单列表')
+  @request("get", "/orders")
+  @summary("获取订单列表")
   @query({
-    page: { type: 'number' },
-    limit: { type: 'number' },
-    status: { type: 'number' }
+    page: { type: "number" },
+    limit: { type: "number" },
+    status: { type: "number" }
   })
   async getOrders(ctx: Context) {
     const {
@@ -32,7 +32,7 @@ export default class OrderController {
       const count = await OrderModel.getOrdersCount(Number(user_id));
       const results = [];//返回数据
       //超15分钟未支付 超时处理
-      for (var i = 0; i < data.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         if (data[i].status === 0 && (new Date().getTime() - new Date(data[i].orderTime).getTime() > 900000)) {
           data[i].status = 4;
           data[i].save();
@@ -45,8 +45,8 @@ export default class OrderController {
             imagePath: food.image_path,
             price: food.specfoods[0].price,
             num: food.num
-          }
-        })
+          };
+        });
         results.push({
           orderId: data[i].orderId,
           shopId: data[i].shopId,
@@ -57,38 +57,38 @@ export default class OrderController {
           foods: foods,
           payAmount: data[i].payAmount,
           scoreInfo: data[i].scoreInfo
-        })
+        });
       }
       ctx.body = {
         status: true,
         data: results,
         pages: Math.ceil(count / 10),
-        message: '查询成功'
-      }
+        message: "查询成功"
+      };
     } catch (error) {
       ctx.boyd = {
         status: false,
-        message: '查询失败'
-      }
+        message: "查询失败"
+      };
       throw new Error(error);
     }
   }
 
-  @request('get', '/getOrderDetail')
-  @summary('获取订单详情')
+  @request("get", "/getOrderDetail")
+  @summary("获取订单详情")
   @query({
-    orderId: { type: 'string' }
+    orderId: { type: "string" }
   })
   async getOrderDetail(ctx: Context) {
     const params = ctx.request.query;
     try {
-      let data = await OrderModel.getOrderById(params.orderId as string, Number(params.user_id));
+      const data = await OrderModel.getOrderById(params.orderId as string, Number(params.user_id));
       if (data && data.status === 0 && (new Date().getTime() - new Date(data.orderTime).getTime() > 900000)) {
         data.status = 4;
         await data.save();
       }
       const addressInfo = await UserAddressModel.findUserAddressById(data.addressId);
-      const shopInfo = await ShopModel.getShopById(data.shopId)
+      const shopInfo = await ShopModel.getShopById(data.shopId);
 
       const result = {
         ...data,
@@ -98,55 +98,55 @@ export default class OrderController {
           userName: addressInfo.name,
           shopName: shopInfo.name
         }
-      }
+      };
       ctx.body = {
         status: true,
-        message: '查询成功',
+        message: "查询成功",
         data: result
-      }
+      };
     } catch (error) {
-      console.log(error)
+      console.log(error);
       ctx.body = {
         status: false,
-        message: '订单不存在',
-      }
+        message: "订单不存在",
+      };
     }
   }
 
-  @request('post', '/createOrder')
-  @summary('创建订单')
+  @request("post", "/createOrder")
+  @summary("创建订单")
   @body({
-    addressId: { type: 'number', require: true },//配送地址id
+    addressId: { type: "number", require: true },//配送地址id
     foodIds: {
-      type: 'array', require: true, item: {//食物清单
-        id: { type: 'number' },//食物id
-        num: { type: 'number' }//食物数量
+      type: "array", require: true, item: {//食物清单
+        id: { type: "number" },//食物id
+        num: { type: "number" }//食物数量
       }
     },
-    tableware: { type: 'string', require: true },//餐具
-    shopId: { type: 'number', require: true },//商店id
+    tableware: { type: "string", require: true },//餐具
+    shopId: { type: "number", require: true },//商店id
     invoice: { //发票信息
       invoiceType: { type: "number" },//发票类型
-      header: { type: 'string' },//抬头
-      taxesNum: { type: 'string' }//税号或社会信用代码
+      header: { type: "string" },//抬头
+      taxesNum: { type: "string" }//税号或社会信用代码
     },
-    remarks: { type: 'sting', require: true },//备注
-    hongbaoId: { type: 'number' }//红包id
+    remarks: { type: "sting", require: true },//备注
+    hongbaoId: { type: "number" }//红包id
   })
   async createOrder(ctx: Context) {
     const params = ctx.request.body;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
-    if (!params.addressId) { result.message = "地址不能位空"; return };
-    if (!params.foodIds) { result.message = "食物id不能为空"; return };
-    if (!params.tableware) { result.message = "餐具必选"; return };
+    };
+    if (!params.addressId) { result.message = "地址不能位空"; return; }
+    if (!params.foodIds) { result.message = "食物id不能为空"; return; }
+    if (!params.tableware) { result.message = "餐具必选"; return; }
 
     try {
       //生成orderId
-      const id = await IdsModel.getIds('order_id');
+      const id = await IdsModel.getIds("order_id");
       const orderId = createOrderId(id, ctx.request.body.user_id);
 
       //计算价格 总原价 优惠后总价格 打包价格
@@ -154,7 +154,7 @@ export default class OrderController {
       let totalAmount = 0;//计算打折优惠后总价格
       let packingFee = 0;//食物打包价格
       const foods = [];//食物列表
-      for (var i = 0; i < params.foodIds.length; i++) {
+      for (let i = 0; i < params.foodIds.length; i++) {
         const food = await FoodModel.findOne({ item_id: params.foodIds[i].id });
         const foodObject = food.toObject();
         originalTotalAmount += (foodObject.specfoods[0].original_price ? foodObject.specfoods[0].original_price : foodObject.specfoods[0].price) * params.foodIds[i].num;
@@ -172,8 +172,8 @@ export default class OrderController {
       //满减优惠金额
       let discountAmount = 0;
       active.forEach(item => {
-        if (item.amount <= originalTotalAmount) { discountAmount = item.reduce };
-      })
+        if (item.amount <= originalTotalAmount) { discountAmount = item.reduce; }
+      });
       //红包
       let redbagAmount = 0;
       let redBag = null;
@@ -185,17 +185,17 @@ export default class OrderController {
             id: hongbao.id,
             name: hongbao.name,
             amount: hongbao.amount
-          }
+          };
         }
       }
       //配送信息
       const delivery = {
         name: shop.delivery_mode ? shop.delivery_mode.text : "商家配送",//配送名称
-        personName: '高大上',//配送人
+        personName: "高大上",//配送人
         timeType: params.deliveryTimeType,//配送时间方式
         amount: deliveryFee,//配送费
         discountAmount: 3//免配送费
-      }
+      };
 
       //实付金额 = 总优惠后总价格+打包价格 + 配送费 - 满减优惠金额 - 红包 - 3(免配送费3元)
       const payAmount = totalAmount + packingFee + deliveryFee - discountAmount - redbagAmount - delivery.discountAmount;
@@ -216,67 +216,67 @@ export default class OrderController {
         tableware: params.tableware,//餐具
         remarks: params.remarks,//用户备注
         addressId: params.addressId,//用户配送地址id
-      })
+      });
       data.save();
       result.status = true;
       result.message = "创建订单成功";
       result.data = data;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       result.message = "服务端异常,结算失败";
     }
   }
 
-  @request('get', '/payOrder')
-  @summary('支付订单')
+  @request("get", "/payOrder")
+  @summary("支付订单")
   @query({
-    orderId: { type: 'string', require: true }
+    orderId: { type: "string", require: true }
   })
   async payOrder(ctx: Context) {
     const { user_id, orderId } = ctx.request.query;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
+    };
     try {
       const data = await OrderModel.getOrderById(orderId as string, Number(user_id));
-      if (!data) { result.message = "订单不存在"; return }
-      if (data.status !== 0) { result.message = "订单支付已超时"; return };
+      if (!data) { result.message = "订单不存在"; return; }
+      if (data.status !== 0) { result.message = "订单支付已超时"; return; }
       data.status = 1;
       await data.save();
       result.status = true;
       result.message = "支付成功";
       result.data = data;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       result.message = "支付异常";
     }
   }
 
-  @request('get', '/comfirmReceipt')
-  @summary('确认收货')
+  @request("get", "/comfirmReceipt")
+  @summary("确认收货")
   @query({
-    orderId: { type: 'string', require: true }
+    orderId: { type: "string", require: true }
   })
   async comfirmReceipt(ctx: Context) {
     const { user_id, orderId } = ctx.request.query;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
+    };
     try {
       const data = await OrderModel.getOrderById(orderId as string, Number(user_id));
-      if (!data) { result.message = "订单不存在"; return }
-      if (data.status === 1) { result.message = "订单状态异常"; return };
+      if (!data) { result.message = "订单不存在"; return; }
+      if (data.status === 1) { result.message = "订单状态异常"; return; }
       data.status = 4;
       await data.save();
       result.status = true;
       result.message = "取消订单成功";
       result.data = data;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       ctx.message = "订单异常";
     }
   }

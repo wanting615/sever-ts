@@ -4,7 +4,7 @@ import { Filter, SortWay } from "../types/shop";
 import { Food } from "./food";
 
 
-@modelOptions({ options: { customName: 'shops' }, schemaOptions: { _id: false } })
+@modelOptions({ options: { customName: "shops" }, schemaOptions: { _id: false } })
 class Shops {
   @prop({ required: true })
   id: number;
@@ -12,16 +12,16 @@ class Shops {
   @prop()
   address: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   description: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   order_lead_time: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   distance: string;
 
-  @prop({ type: () => [Number], index: '2d' })
+  @prop({ type: () => [Number], index: "2d" })
   location: number[];
 
   @prop({ default: 0 })
@@ -33,7 +33,7 @@ class Shops {
   @prop()
   category: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   image_path: string;
 
   @prop({ default: false })
@@ -57,7 +57,7 @@ class Shops {
   @prop()
   public piecewise_agent_fee: PiecewiseAgentFee
 
-  @prop({ default: '欢迎光临，用餐高峰请提前下单，谢谢' })
+  @prop({ default: "欢迎光临，用餐高峰请提前下单，谢谢" })
   promotion_info: string;
 
   @prop({ default: 0 })
@@ -72,7 +72,7 @@ class Shops {
   @prop({ default: 0 })
   status: number;
 
-  @prop({ type: () => [String], default: ['08:30/20:30'] })
+  @prop({ type: () => [String], default: ["08:30/20:30"] })
   opening_hours: string[];
 
   @prop({ type: Activity })
@@ -93,17 +93,17 @@ class Shops {
 
   //获取商铺列表
   public static async getShops(this: ReturnModelType<typeof Shops>, filter: Filter, sortWay: SortWay, page: number, limit: number) {
-    return this.find(filter, { _id: 0, __v: 0 }).sort(sortWay).limit(limit).skip((page - 1) * limit)
+    return this.find(filter, { _id: 0, __v: 0 }).sort(sortWay).limit(limit).skip((page - 1) * limit);
   }
 
   //获取商铺详情-id
   public static async getShopById(this: ReturnModelType<typeof Shops>, shopId: number) {
-    return this.findOne({ id: shopId }, { _id: 0, __v: 0 })
+    return this.findOne({ id: shopId }, { _id: 0, __v: 0 });
   }
 }
 
 //商店菜单栏
-@modelOptions({ options: { customName: 'menus' } })
+@modelOptions({ options: { customName: "menus" } })
 class ShopMenu {
   @prop({ required: true })
   id: number;
@@ -111,7 +111,7 @@ class ShopMenu {
   @prop({ default: true })
   is_selected: boolean;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   icon_url: string;
 
   @prop({ required: true })
@@ -128,7 +128,7 @@ class ShopMenu {
 
   //获取商铺食品--按分类
   public static async getShopMenu(this: ReturnModelType<typeof ShopMenu>, shopId: number) {
-    return this.find({ restaurant_id: shopId })
+    return this.find({ restaurant_id: shopId });
   }
 }
 
@@ -136,4 +136,4 @@ const ShopModel = getModelForClass(Shops);
 
 const ShopMenuModel = getModelForClass(ShopMenu);
 
-export { ShopModel, Shops, ShopMenuModel }
+export { ShopModel, Shops, ShopMenuModel };

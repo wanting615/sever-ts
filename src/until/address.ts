@@ -1,115 +1,116 @@
-import { PositionArr } from '../types/address';
-const fetch = require('node-fetch');
+import { PositionArr } from "../types/address";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const fetch = require("node-fetch");
 /*
 腾讯地图和百度地图API统一调配组件
  */
 class Address {
-  tencentkey: string = 'L3ABZ-H4P62-PMCUD-CBG5F-LXTX7-XGF5E';
+  tencentkey: string = "L3ABZ-H4P62-PMCUD-CBG5F-LXTX7-XGF5E";
 
 
-  async fetch(url = '', data: any = {}, type = 'GET', resType = 'JSON') {
+  async fetch(url = "", data: any = {}, type = "GET", resType = "JSON") {
     type = type.toUpperCase();
     resType = resType.toUpperCase();
-    if (type == 'GET') {
-      let dataStr = ''; //数据拼接字符串
+    if (type == "GET") {
+      let dataStr = ""; //数据拼接字符串
       Object.keys(data).forEach(key => {
-        dataStr += key + '=' + data[key] + '&';
-      })
+        dataStr += key + "=" + data[key] + "&";
+      });
 
-      if (dataStr !== '') {
-        dataStr = dataStr.substr(0, dataStr.lastIndexOf('&'));
-        url = url + '?' + dataStr;
+      if (dataStr !== "") {
+        dataStr = dataStr.substr(0, dataStr.lastIndexOf("&"));
+        url = url + "?" + dataStr;
       }
     }
 
-    let requestConfig = {
+    const requestConfig = {
       method: type,
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        "Accept": "application/json",
+        "Content-Type": "application/json"
       },
-    }
+    };
 
-    if (type == 'POST') {
-      Object.defineProperty(requestConfig, 'body', {
+    if (type == "POST") {
+      Object.defineProperty(requestConfig, "body", {
         value: JSON.stringify(data)
-      })
+      });
     }
     let responseJson;
     try {
       const response = await fetch(url, requestConfig);
-      if (resType === 'TEXT') {
+      if (resType === "TEXT") {
         responseJson = await response.text();
       } else {
         responseJson = await response.json();
       }
     } catch (err) {
-      console.log('获取http数据失败', err);
-      throw new Error(err)
+      console.log("获取http数据失败", err);
+      throw new Error(err);
     }
-    return responseJson
+    return responseJson;
   }
 
   //ip获取定位地址
   async guessPosition(req: any) {
     return new Promise(async (resolve, reject) => {
       let ip;
-      const defaultIp = '180.167.225.236';
-      if (process.env.NODE_ENV == 'development') {
+      const defaultIp = "180.167.225.236";
+      if (process.env.NODE_ENV == "development") {
         ip = defaultIp;
       } else {
         try {
-          ip = req.headers['x-forwarded-for'] ||
+          ip = req.headers["x-forwarded-for"] ||
             req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
-          const ipArr = ip.split(':');
+          const ipArr = ip.split(":");
           ip = ipArr[ipArr.length - 1] || defaultIp;
         } catch (e) {
           ip = defaultIp;
         }
       }
       try {
-        let result: any = await this.fetch('http://apis.map.qq.com/ws/location/v1/ip', {
+        const result: any = await this.fetch("http://apis.map.qq.com/ws/location/v1/ip", {
           ip,
           key: this.tencentkey,
-        })
+        });
         if (result.status == 0) {
           const cityInfo = {
             lat: result.result.location.lat,
             lng: result.result.location.lng,
             city: result.result.ad_info.city,
-          }
-          cityInfo.city = cityInfo.city.replace(/市$/, '');
-          resolve(cityInfo)
+          };
+          cityInfo.city = cityInfo.city.replace(/市$/, "");
+          resolve(cityInfo);
         } else {
           // console.log('定位失败', result)
           resolve({
-            city: '上海',
+            city: "上海",
             lat: "31.18826",
             lng: "121.43687"
-          })
+          });
           // reject('定位失败');
         }
       } catch (err) {
         reject(err);
       }
-    })
+    });
   }
 
   //搜索地址
-  async searchPlace(keyword: string, cityName: string, type = 'search') {
+  async searchPlace(keyword: string, cityName: string, type = "search") {
     try {
-      const resObj: any = await this.fetch('http://apis.map.qq.com/ws/place/v1/search', {
+      const resObj: any = await this.fetch("http://apis.map.qq.com/ws/place/v1/search", {
         key: this.tencentkey,
         keyword: encodeURIComponent(keyword),
-        boundary: 'region(' + encodeURIComponent(cityName) + ',0)',
+        boundary: "region(" + encodeURIComponent(cityName) + ",0)",
         page_size: 10,
       });
       if (resObj.status == 0) {
-        return resObj
+        return resObj;
       } else {
-        throw new Error('搜索位置信息失败');
+        throw new Error("搜索位置信息失败");
       }
     } catch (err) {
       throw new Error(err);
@@ -118,21 +119,21 @@ class Address {
   //测量距离
   async getDistance(from: string, to: string, type?: string) {
     try {
-      let res: any = await this.fetch('https://apis.map.qq.com/ws/distance/v1/', {
+      const res: any = await this.fetch("https://apis.map.qq.com/ws/distance/v1/", {
         mode: "driving",
         from: from,
         to: to,
         key: this.tencentkey,
-        output: 'json',
-      })
+        output: "json",
+      });
       if (res.status == 0) {
         const positionArr: PositionArr[] = [];
         let timevalue;
         res.result.elements.forEach((item: any) => {
           timevalue = parseInt(item.duration) + 1200;
-          let durationtime = Math.ceil(timevalue % 3600 / 60) + '分钟';
+          let durationtime = Math.ceil(timevalue % 3600 / 60) + "分钟";
           if (Math.floor(timevalue / 3600)) {
-            durationtime = Math.floor(timevalue / 3600) + '小时' + durationtime;
+            durationtime = Math.floor(timevalue / 3600) + "小时" + durationtime;
           }
           let distance = "0";
           if (item.distance > 999) {
@@ -144,35 +145,35 @@ class Address {
           positionArr.push({
             distance: distance,
             order_lead_time: durationtime,
-          })
-        })
-        if (type == 'tiemvalue') {
-          return timevalue
+          });
+        });
+        if (type == "tiemvalue") {
+          return timevalue;
         } else {
-          return positionArr
+          return positionArr;
         }
       } else {
-        if (type == 'tiemvalue') {
+        if (type == "tiemvalue") {
           return 2000;
         } else {
-          throw new Error('调用qq地图测距失败');
+          throw new Error("调用qq地图测距失败");
         }
       }
     } catch (err) {
-      console.log('获取位置距离失败');
+      console.log("获取位置距离失败");
       throw new Error(err);
     }
   }
 
   async getDistanceTime(from: string, to: string,) {
     try {
-      let res: any = await this.fetch('https://apis.map.qq.com/ws/distance/v1/', {
+      const res: any = await this.fetch("https://apis.map.qq.com/ws/distance/v1/", {
         mode: "driving",
         from: from,
         to: to,
         key: this.tencentkey,
-        output: 'json',
-      })
+        output: "json",
+      });
       if (res.status == 0) {
         const positionArr: PositionArr[] = [];
         let timevalue;
@@ -187,14 +188,14 @@ class Address {
           positionArr.push({
             distance: distance,
             order_lead_time: timevalue,
-          })
-        })
-        return positionArr
+          });
+        });
+        return positionArr;
       } else {
-        throw new Error('调用qq地图测距失败');
+        throw new Error("调用qq地图测距失败");
       }
     } catch (err) {
-      console.log('获取位置距离失败');
+      console.log("获取位置距离失败");
       throw new Error(err);
     }
   }
@@ -204,16 +205,16 @@ class Address {
       const address: any = await this.guessPosition(req);
       const params = {
         key: this.tencentkey,
-        location: address.lat + ',' + address.lng
+        location: address.lat + "," + address.lng
       };
-      let res: any = await this.fetch('http://apis.map.qq.com/ws/geocoder/v1/', params);
+      const res: any = await this.fetch("http://apis.map.qq.com/ws/geocoder/v1/", params);
       if (res.status == 0) {
-        return res
+        return res;
       } else {
-        throw new Error('获取具体位置信息失败');
+        throw new Error("获取具体位置信息失败");
       }
     } catch (err) {
-      console.log('geocoder获取定位失败', err);
+      console.log("geocoder获取定位失败", err);
       throw new Error(err);
     }
   }
@@ -222,17 +223,17 @@ class Address {
     try {
       const params = {
         key: this.tencentkey,
-        location: lat + ',' + lng
+        location: lat + "," + lng
       };
-      let res: any = await this.fetch('http://apis.map.qq.com/ws/geocoder/v1/', params);
+      const res: any = await this.fetch("http://apis.map.qq.com/ws/geocoder/v1/", params);
 
       if (res.status == 0) {
-        return res
+        return res;
       } else {
-        throw new Error('通过获geohash取具体位置失败');
+        throw new Error("通过获geohash取具体位置失败");
       }
     } catch (err) {
-      console.log('getpois获取定位失败', err)
+      console.log("getpois获取定位失败", err);
       throw new Error(err);
     }
   }

@@ -1,27 +1,27 @@
 import { getModelForClass, index, modelOptions, prop, Ref } from "@typegoose/typegoose";
 
 class Attribute {
-  @prop({ default: '' })
+  @prop({ default: "" })
   icon_color: string
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   icon_name: string
 }
 class Specification {
-  @prop({ default: '' })
+  @prop({ default: "" })
   name: string
 
   @prop({ type: String, default: [] })
   values: string[]
 }
 class Activity {
-  @prop({ default: '' })
+  @prop({ default: "" })
   image_text_color: string
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   icon_color: string
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   image_text: string
 }
 
@@ -93,7 +93,7 @@ class Specfood {
 }
 
 @index({ id: 1 })
-@modelOptions({ options: { customName: 'foods', allowMixed: 0, } })
+@modelOptions({ options: { customName: "foods", allowMixed: 0, } })
 class Food {
   @prop({ required: true })
   item_id: number;//id
@@ -107,16 +107,16 @@ class Food {
   @prop({ required: true })
   name: string;//名
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   image_path: string;//图片路径
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   tips: string;//标签
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   description: string;//描述
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   pinyin_name: string;
 
   @prop({ default: 0 })
@@ -170,4 +170,4 @@ class Food {
 
 const FoodModel = getModelForClass(Food);
 
-export { Food, FoodModel }
+export { Food, FoodModel };

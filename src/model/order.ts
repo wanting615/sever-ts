@@ -33,7 +33,7 @@ class Delivery {//配送信息
   @prop({ required: true })
   personName: string;//配送人员名称
 
-  @prop({ default: '尽快送达' })
+  @prop({ default: "尽快送达" })
   timeType?: string;//配送方式
 
   @prop({ default: 0 })
@@ -52,7 +52,7 @@ class ScoreInfo {//订单评价
   shop?: number;//商店评价分
 }
 
-@modelOptions({ options: { customName: 'orders' }, schemaOptions: { _id: false } })
+@modelOptions({ options: { customName: "orders" }, schemaOptions: { _id: false } })
 class Order {
   @prop({ required: true })
   userId: number;
@@ -66,7 +66,7 @@ class Order {
   @prop({ default: Date.now })
   orderTime: Date;//订单创建时间
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   remarks?: string;//备注
 
   @prop({ required: true })
@@ -105,7 +105,7 @@ class Order {
   @prop({ default: 0 })
   fullMinus?: number;//满减金额
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   tableware: string;//餐具
 
   @prop({ type: RedBag })
@@ -128,11 +128,11 @@ class Order {
   }
   //获取用户订单数量
   public static async getOrdersCount(this: ReturnModelType<typeof Order>, userId: number) {
-    return this.count({ userId })
+    return this.count({ userId });
   }
   //获取订单详情
   public static async getOrderById(this: ReturnModelType<typeof Order>, orderId: string, userId: number) {
-    return this.findOne({ orderId, userId })
+    return this.findOne({ orderId, userId });
   }
 }
 

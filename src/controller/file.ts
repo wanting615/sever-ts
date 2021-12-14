@@ -1,30 +1,30 @@
-import { Context } from 'koa';
+import { Context } from "koa";
 import { query, request, summary } from "koa-swagger-decorator";
-import fs from 'fs';
+import fs from "fs";
 import path from "path";
-import crypto from 'crypto';
-import { needLogin } from '../middleware/checkPermission';
-import { FileModel } from '../model/file';
-import { localPath } from '../config/path';
+import crypto from "crypto";
+import { needLogin } from "../middleware/checkPermission";
+import { FileModel } from "../model/file";
+import { localPath } from "../config/path";
 
 export default class FindController {
-  @request('post', '/fileUpload')
-  @summary('添加文件')
+  @request("post", "/fileUpload")
+  @summary("添加文件")
   // @middlewares([needLogin])
   async addFind(ctx: Context) {
     try {
       const params = ctx.request.body;//上传其它的参数
       const file = ctx.request.files.file; // 获取上传文件
       // 创建可读流
-      if (Array.isArray(file)) { return };
+      if (Array.isArray(file)) { return; }
       const reader = fs.createReadStream(file.path);
-      const filePath = path.join(path.resolve(__dirname, ".."), 'public/files/') + `${file.name}`;
+      const filePath = path.join(path.resolve(__dirname, ".."), "public/files/") + `${file.name}`;
       //生成hash 校验是否上传相同文件
-      const fsHash = crypto.createHash('md5');
+      const fsHash = crypto.createHash("md5");
       const buffer = fs.readFileSync(file.path);
       fsHash.update(buffer);
-      const fileHash = fsHash.digest('hex');
-      console.log('文件的MD5是：%s', fileHash);
+      const fileHash = fsHash.digest("hex");
+      console.log("文件的MD5是：%s", fileHash);
 
       const result = await FileModel.findFilesByFileHash(fileHash);
       // if (!params.shopId) { ctx.body = { status: false, message: '商店id不能为空' }; return; }
@@ -39,7 +39,7 @@ export default class FindController {
           fileType: file.type,
           fileHash,
           size: file.size
-        })
+        });
         await addResult.save();
         if (!addResult) return;
         // 创建可写流
@@ -59,7 +59,7 @@ export default class FindController {
         };
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       ctx.body = {
         status: true,
         message: "文件上传失败"
@@ -67,10 +67,10 @@ export default class FindController {
     }
   }
 
-  @request('get', '/delFile')
-  @summary('删除文件')
+  @request("get", "/delFile")
+  @summary("删除文件")
   @query({
-    fileId: { type: 'number', require: true }
+    fileId: { type: "number", require: true }
   })
   async delFile(ctx: Context) {
     const fileId = ctx.request.query.fileId;
@@ -83,27 +83,27 @@ export default class FindController {
           fs.unlinkSync(filePath);
           ctx.body = {
             status: true,
-            message: '删除成功'
-          }
+            message: "删除成功"
+          };
         } else {
           ctx.body = {
             status: false,
-            message: '删除失败'
-          }
+            message: "删除失败"
+          };
         }
       } else {
         ctx.body = {
           status: false,
-          message: '文件不存在'
-        }
+          message: "文件不存在"
+        };
       }
 
     } catch (error) {
-      console.log(error)
+      console.log(error);
       ctx.body = {
         status: false,
-        message: '服务器异常'
-      }
+        message: "服务器异常"
+      };
     }
 
   }

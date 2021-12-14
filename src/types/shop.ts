@@ -8,8 +8,8 @@ export interface Filter {
   location?: {
     $near: [number, number]
   };
-  'delivery_mode.id'?: number;
-  'supports.id'?: {
+  "delivery_mode.id"?: number;
+  "supports.id"?: {
     $all: number[]
   };
   is_premium?: boolean;

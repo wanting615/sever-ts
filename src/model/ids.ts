@@ -1,7 +1,7 @@
 import { IdsList } from "../types/ids";
 import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
 
-@modelOptions({ options: { customName: 'ids' } })
+@modelOptions({ options: { customName: "ids" } })
 class Id {
   @prop()
   public restaurant_id: number;
@@ -45,8 +45,8 @@ class Id {
       await idsData.save();
       return idsData[id];
     } catch (error) {
-      console.log('获取ID数据失败');
-      throw new Error(error)
+      console.log("获取ID数据失败");
+      throw new Error(error);
     }
   }
 }
@@ -72,6 +72,6 @@ IdsModel.findOne((_error: any, data: any) => {
     });
     newIds.save();
   }
-})
+});
 
-export { IdsModel }
+export { IdsModel };

@@ -1,7 +1,7 @@
 import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
 
 //微信小程序文档类型
-@modelOptions({ schemaOptions: { collection: 'wechatType' } })
+@modelOptions({ schemaOptions: { collection: "wechatType" } })
 class WxType {
   @prop({ required: true })
   id: number;
@@ -35,7 +35,7 @@ class WxType {
 }
 
 //微信小程序知识文档
-@modelOptions({ schemaOptions: { collection: 'wechat' } })
+@modelOptions({ schemaOptions: { collection: "wechat" } })
 class WxClass {
   @prop({ required: true })
   id: number;
@@ -43,7 +43,7 @@ class WxClass {
   @prop({ required: true })
   type: number;//文档类型 html or css or ts or node or...
 
-  @prop({ default: 'info' })
+  @prop({ default: "info" })
   contentType: string;//内容类型---info or question or other
 
   @prop({ required: true })
@@ -78,7 +78,7 @@ class WxClass {
 
   //删除某文档
   public static async delDocById(this: ReturnModelType<typeof WxClass>, id: number) {
-    return this.remove({ id })
+    return this.remove({ id });
   }
 }
 
@@ -86,4 +86,4 @@ const WxTypeModel = getModelForClass(WxType);
 const WxClassModel = getModelForClass(WxClass);
 
 
-export { WxTypeModel, WxClassModel }
+export { WxTypeModel, WxClassModel };

@@ -5,8 +5,8 @@ import RsaDecrypt from "./../until/rsa";
 export const needLogin = async (ctx: any, next: any): Promise<void> => {
   ctx.body = {
     status: false,
-    message: ''
-  }
+    message: ""
+  };
   const token = ctx.header.access_token || ctx.query.token;
   if (!token) {
     ctx.body.message = "请登陆！";
@@ -20,7 +20,7 @@ export const needLogin = async (ctx: any, next: any): Promise<void> => {
 
   const params = RsaDecrypt.strParse(paramsStr);
   if (!params.username || !params.password) {
-    ctx.body.message = '不合法的token';
+    ctx.body.message = "不合法的token";
     return;
   }
 
@@ -32,4 +32,4 @@ export const needLogin = async (ctx: any, next: any): Promise<void> => {
   ctx.query.user_id = user.user_id;
   ctx.request.body.user_id = user.user_id;
   await next();
-}
+};

@@ -31,31 +31,31 @@ export class DeliveryMode {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class Identification {
-  @prop({ default: '' })
+  @prop({ default: "" })
   company_name: string;
   @prop({ default: Date.now })
   identificate_date: Date;
-  @prop({ default: '' })
+  @prop({ default: "" })
   legal_person: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   licenses_date: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   licenses_number: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   licenses_scope: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   operation_period: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   registered_address: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   registered_number: string;
 }
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class License {
-  @prop({ default: '' })
+  @prop({ default: "" })
   business_license_image: string;
-  @prop({ default: '' })
+  @prop({ default: "" })
   catering_service_license_image: string;
 }
 

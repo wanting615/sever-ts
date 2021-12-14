@@ -15,10 +15,10 @@ class DescMap {
   validity_periods: string;//什么时候到期
 
   @prop({ required: true })
-  sum_condition: String//满多少使用
+  sum_condition: string//满多少使用
 }
 
-@modelOptions({ options: { customName: 'hongbaos' }, schemaOptions: { _id: false } })
+@modelOptions({ options: { customName: "hongbaos" }, schemaOptions: { _id: false } })
 class Hongbao {
   @prop({ required: true })
   id: number;
@@ -38,7 +38,7 @@ class Hongbao {
   @prop({ required: true })
   name: string;//红包名称
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   phone?: string;//手机号
 
   @prop({ required: true })
@@ -61,11 +61,11 @@ class Hongbao {
 
   public static async getHongbaos(this: ReturnModelType<typeof Hongbao>, user_id: number, status: number, limit = 10, offset = 1) {
     const data = await this.updateHongbaos(user_id);
-    return await this.find({ user_id, status, present_status: 1 }, '-_id').limit(limit).skip((offset - 1) * limit);
+    return await this.find({ user_id, status, present_status: 1 }, "-_id").limit(limit).skip((offset - 1) * limit);
   }
 
   public static async getHongbaoById(this: ReturnModelType<typeof Hongbao>, id: number) {
-    return await this.findOne({ id })
+    return await this.findOne({ id });
   }
 
   /**
@@ -74,9 +74,9 @@ class Hongbao {
   public static async updateHongbaos(this: ReturnModelType<typeof Hongbao>, user_id: number) {
     const nowDate = new Date();
     const hongbaoList = await this.find({ user_id: user_id, status: 0 });
-    for (var i = 0; i < hongbaoList.length; i++) {
+    for (let i = 0; i < hongbaoList.length; i++) {
       if (new Date(hongbaoList[i].end_date) < nowDate) {
-        hongbaoList[i].status = 1
+        hongbaoList[i].status = 1;
         await hongbaoList[i].save();
       }
     }

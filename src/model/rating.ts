@@ -1,7 +1,7 @@
-import { ReturnModelType } from '@typegoose/typegoose';
-import { getModelForClass } from '@typegoose/typegoose';
-import { Ref } from '@typegoose/typegoose';
-import { modelOptions, prop } from '@typegoose/typegoose';
+import { ReturnModelType } from "@typegoose/typegoose";
+import { getModelForClass } from "@typegoose/typegoose";
+import { Ref } from "@typegoose/typegoose";
+import { modelOptions, prop } from "@typegoose/typegoose";
 @modelOptions({ schemaOptions: { _id: false } })
 class RatingItem {
   @prop({ required: true })
@@ -10,7 +10,7 @@ class RatingItem {
   @prop({ required: true })
   food_name: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   image_hash: string;
 
   @prop({ default: 1 })
@@ -22,7 +22,7 @@ class RatingIDetail {
   @prop({ required: true })
   username: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   avatar?: string;
 
   @prop()
@@ -34,10 +34,10 @@ class RatingIDetail {
   @prop()
   rating_star: number;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   rating_text?: string;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   time_spent_desc?: string;
 
   @prop({ type: String })
@@ -80,7 +80,7 @@ class Score {
 /**
  * 评价表
  */
-@modelOptions({ options: { customName: 'ratings' }, schemaOptions: { _id: false } })
+@modelOptions({ options: { customName: "ratings" }, schemaOptions: { _id: false } })
 class Rating {
   @prop({ required: true })
   restaurant_id: number;
@@ -99,8 +99,8 @@ class Rating {
       const data = await this.findOne({ restaurant_id: shopId });
       return data.ratings;
     } catch (error) {
-      console.log(error)
-      return []
+      console.log(error);
+      return [];
     }
   }
 
@@ -109,8 +109,8 @@ class Rating {
       const data = await this.findOne({ restaurant_id: shopId });
       return data.scores;
     } catch (error) {
-      console.log(error)
-      return null
+      console.log(error);
+      return null;
     }
   }
 
@@ -119,14 +119,14 @@ class Rating {
       const data = await this.findOne({ restaurant_id: shopId });
       return data.tags;
     } catch (error) {
-      console.log(error)
-      return []
+      console.log(error);
+      return [];
     }
   }
 }
 
 const RatingModel = getModelForClass(Rating);
 
-export { RatingModel }
+export { RatingModel };
 
 

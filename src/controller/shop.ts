@@ -1,14 +1,14 @@
-import { Context } from 'koa';
+import { Context } from "koa";
 import { request, summary, path } from "koa-swagger-decorator";
-import { Filter, SortWay } from '../types/shop';
+import { Filter, SortWay } from "../types/shop";
 import { CategoryModel } from "../model/category";
-import { ShopMenuModel, ShopModel, Shops } from '../model/shop';
+import { ShopMenuModel, ShopModel, Shops } from "../model/shop";
 import Address from "../until/address";
-import { Result } from '../types/result';
+import { Result } from "../types/result";
 
 export default class ShopController {
-  @request('get', '/shops/list')
-  @summary('查询商店列表')
+  @request("get", "/shops/list")
+  @summary("查询商店列表")
   public static async getShopList(ctx: Context) {
     const {
       latitude,//纬度
@@ -24,24 +24,24 @@ export default class ShopController {
     } = ctx.request.query;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
+    };
     if (!latitude || !longitude) {//经纬度未传 return
-      result.message = 'latitude,longitude不能为空';
+      result.message = "latitude,longitude不能为空";
       return;
     }
-    let filter: Filter = {} //过滤集合
-    let sortWay: SortWay = {};
+    const filter: Filter = {}; //过滤集合
+    const sortWay: SortWay = {};
     if (Number(orderBy)) { //排序
       switch (Number(orderBy)) {
         case 1://智能排序
-          sortWay.float_minimum_order_amount = 1
+          sortWay.float_minimum_order_amount = 1;
           break;
         case 2://距离最近
           filter.location = {
             $near: [Number(longitude), Number(latitude)]
-          }
+          };
           break;
         case 3://销量最好
           sortWay.recent_order_num = -1;
@@ -52,7 +52,7 @@ export default class ShopController {
         case 5://配送最快
           filter.location = {
             $near: [Number(longitude), Number(latitude)]
-          }
+          };
           break;
         case 6://评分最高
           sortWay.rating = -1;
@@ -61,105 +61,105 @@ export default class ShopController {
     }
     if (Array.isArray(delivery_mode)) { //配送方式筛选
       delivery_mode.forEach((item: string) => {
-        filter['delivery_mode.id'] = Number(item);
-      })
+        filter["delivery_mode.id"] = Number(item);
+      });
     }
 
     if (Array.isArray(support_ids)) {//商家属性
       const filterArr: number[] = [];
       support_ids.forEach(item => {
         if (Number(item) && (Number(item) !== 8)) {
-          filterArr.push(Number(item))
+          filterArr.push(Number(item));
         } else if (Number(item) == 8) { //品牌保证特殊处理
           filter.is_premium = true;
         }
-      })
+      });
 
       if (filterArr.length) {
         //匹配同时拥有多种活动的数据
-        filter['supports.id'] = { $all: filterArr }
+        filter["supports.id"] = { $all: filterArr };
       }
 
     }
 
     if (categoryId && Number(categoryId)) {//查早对应商店分类名称
-      const category = await CategoryModel.getCategoryById(Number(categoryId))
+      const category = await CategoryModel.getCategoryById(Number(categoryId));
       if (category.length > 0) {
-        Object.assign(filter, { category: category[0].name })
+        Object.assign(filter, { category: category[0].name });
       }
     }
 
     const shopslist = await ShopModel.getShops(filter, sortWay, Number(page), Number(limit));
 
     //测量距离
-    const from = latitude + ',' + longitude;
+    const from = latitude + "," + longitude;
 
-    let to = '';
+    let to = "";
     shopslist.forEach((item: Shops, index: number) => {
-      const slpitStr = (index == shopslist.length - 1) ? '' : ';';
-      to += item.latitude + ',' + item.longitude + slpitStr;
-    })
+      const slpitStr = (index == shopslist.length - 1) ? "" : ";";
+      to += item.latitude + "," + item.longitude + slpitStr;
+    });
 
 
     try {
       if (shopslist.length) {
         const distance_duration: any = await Address.getDistance(from, to);
         shopslist.map((item, index) => {
-          return Object.assign(item, distance_duration[index])
-        })
+          return Object.assign(item, distance_duration[index]);
+        });
       }
     } catch (error) {
       // qq地图达到上限后会导致加车失败，需优化
-      console.log('从addressComoponent获取测距数据失败', error);
+      console.log("从addressComoponent获取测距数据失败", error);
       shopslist.map((item, index) => {
-        return Object.assign(item, { distance: '10公里', order_lead_time: '40分钟' })
-      })
+        return Object.assign(item, { distance: "10公里", order_lead_time: "40分钟" });
+      });
     }
     result.status = true;
-    result.message = '查询成功';
+    result.message = "查询成功";
     result.data = shopslist;
 
   }
 
-  @request('get', '/shop/{shopId}')
-  @summary('获取商店详情')
-  @path({ shopId: { type: 'number', required: true } })
+  @request("get", "/shop/{shopId}")
+  @summary("获取商店详情")
+  @path({ shopId: { type: "number", required: true } })
   public static async getShopById(ctx: Context) {
     const { shopId } = ctx.validatedParams;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
+    };
     if (!shopId || !Number(shopId)) {
       result.message = "餐馆id参数错误";
-      return
+      return;
     }
 
     try {
       const data = await ShopModel.getShopById(shopId);
       result.status = true;
-      result.message = '查询成功';
+      result.message = "查询成功";
       result.data = data;
     } catch (error) {
-      console.log(error)
-      result.message = '获取餐馆详情失败';
+      console.log(error);
+      result.message = "获取餐馆详情失败";
     }
   }
 
-  @request('get', '/shopMenu/{shopId}')
-  @summary('获取餐馆食品menu')
-  @path({ shopId: { type: 'number', required: true } })
+  @request("get", "/shopMenu/{shopId}")
+  @summary("获取餐馆食品menu")
+  @path({ shopId: { type: "number", required: true } })
   public static async getShopMenu(ctx: Context) {
     const { shopId } = ctx.validatedParams;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
+    };
     if (!shopId || !Number(shopId)) {
       result.message = "餐馆id参数错误";
-      return
+      return;
     }
 
     try {
@@ -168,8 +168,8 @@ export default class ShopController {
       result.data = data;
       return;
     } catch (error) {
-      console.log(error)
-      result.message = '获取餐馆食品menu失败'
+      console.log(error);
+      result.message = "获取餐馆食品menu失败";
     }
   }
 }

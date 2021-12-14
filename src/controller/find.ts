@@ -1,36 +1,36 @@
-import { Context } from 'koa';
+import { Context } from "koa";
 import { body, middlewares, query, request, summary } from "koa-swagger-decorator";
 import { FindModel } from "../model/finds";
 import { IdsModel } from "../model/ids";
-import { ShopModel } from '../model/shop';
-import { needLogin } from '../middleware/checkPermission';
-import { UserInfoModel } from '../model/user';
-import { Result } from '../types/result';
+import { ShopModel } from "../model/shop";
+import { needLogin } from "../middleware/checkPermission";
+import { UserInfoModel } from "../model/user";
+import { Result } from "../types/result";
 
 export default class FindController {
-  @request('post', '/addFind')
-  @summary('添加发现')
+  @request("post", "/addFind")
+  @summary("添加发现")
   async addFind(ctx: Context) {
     const { shopId, vedioPath, tips } = ctx.request.body;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
-    if (!shopId) { result.message = "请填写商店id"; return };
+    };
+    if (!shopId) { result.message = "请填写商店id"; return; }
     try {
       const findResult = await FindModel.getFindByShopId(shopId);
       if (findResult && findResult.length > 0) {
         result.message = "已存在了哦";
-        return
+        return;
       }
-      const id = await IdsModel.getIds('find_id');
+      const id = await IdsModel.getIds("find_id");
       const data = new FindModel({
         id,
         shopId,
         vedioPath,
         tips
-      })
+      });
       await data.save();
       result.status = true;
       result.message = "添加成功";
@@ -41,12 +41,12 @@ export default class FindController {
     }
   }
 
-  @request('get', '/getFind')
-  @summary('获取发现')
+  @request("get", "/getFind")
+  @summary("获取发现")
   public static async getFindAll(ctx: Context) {
     const { page = 1, limit = 10 } = ctx.request.query;
     try {
-      console.log(FindModel)
+      console.log(FindModel);
       const results = await FindModel.getFinds(Number(page), Number(limit));
       for (let i = 0; i < results.length; i++) {
         const shop = await ShopModel.getShopById(results[i].shopId);
@@ -58,40 +58,40 @@ export default class FindController {
             activities: shop.activities,
             is_premium: shop.is_premium,
             order_lead_time: Math.floor(Math.random() * (11) + 30),
-          }
+          };
         }
       }
       ctx.body = {
         status: true,
-        message: '查询成功',
+        message: "查询成功",
         data: results
-      }
+      };
     } catch (error) {
       ctx.body = {
         status: false,
-        message: '失败',
+        message: "失败",
         data: []
-      }
-      console.log(error)
+      };
+      console.log(error);
     }
   }
 
-  @request('post', '/replyFind')
-  @summary('回复发现')
+  @request("post", "/replyFind")
+  @summary("回复发现")
   @middlewares([needLogin])
   @body({
-    user_id: { type: 'string', require: true },
-    detail: { type: 'string', require: true },
-    id: { type: 'string' }
+    user_id: { type: "string", require: true },
+    detail: { type: "string", require: true },
+    id: { type: "string" }
   })
   async replyFind(ctx: Context) {
     const { user_id, detail, id } = ctx.request.body;
     const result: Result = ctx.body = {
       status: false,
-      message: '',
+      message: "",
       data: null
-    }
-    if (!id) { result.message = "回复id不能为空"; return }
+    };
+    if (!id) { result.message = "回复id不能为空"; return; }
     try {
       const userInfo = await UserInfoModel.findUserInfo(user_id);
       const findInfo = await FindModel.getFindById(Number(id));
@@ -103,18 +103,18 @@ export default class FindController {
           userId: user_id,
           userAvatar: userInfo.avatar,
           detail: detail,
-        })
-        findInfo.save()
+        });
+        findInfo.save();
         ctx.body = {
           status: true,
-          message: '回复成功',
+          message: "回复成功",
           data: findInfo.replaysDetails[findInfo.replaysDetails.length - 1]
-        }
+        };
       } else {
         ctx.body = {
           status: true,
-          message: '此条记录不存在',
-        }
+          message: "此条记录不存在",
+        };
       }
     } catch (error) {
       result.message = "服务器异常";
@@ -122,11 +122,11 @@ export default class FindController {
     }
   }
 
-  @request('get', '/findPraise')
-  @summary('点赞')
+  @request("get", "/findPraise")
+  @summary("点赞")
   @middlewares([needLogin])
   @query({
-    id: { type: 'string' }
+    id: { type: "string" }
   })
   async findPraise(ctx: Context) {
     const { id } = ctx.request.query;
@@ -137,16 +137,16 @@ export default class FindController {
         find.save();
         ctx.body = {
           status: true,
-          message: '点赞成功',
-        }
+          message: "点赞成功",
+        };
       } else {
         ctx.body = {
           status: false,
-          message: '该记录不存在'
-        }
+          message: "该记录不存在"
+        };
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 }

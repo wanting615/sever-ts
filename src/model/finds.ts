@@ -5,13 +5,13 @@ class ReplaysDetail {
   @prop({ required: true })
   replyId: number;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   username: string;
 
   @prop({ required: true })
   userId: number;
 
-  @prop({ default: 'default.jpg' })
+  @prop({ default: "default.jpg" })
   userAvatar?: string;
 
   @prop()
@@ -24,7 +24,7 @@ class ReplaysDetail {
   praises?: number;
 }
 
-@modelOptions({ options: { allowMixed: 0 }, schemaOptions: { _id: false, collection: 'finds' } })
+@modelOptions({ options: { allowMixed: 0 }, schemaOptions: { _id: false, collection: "finds" } })
 class Find {
   @prop({ required: true })
   id: number;
@@ -41,7 +41,7 @@ class Find {
   @prop({ default: 0 })
   replys: number;
 
-  @prop({ default: '' })
+  @prop({ default: "" })
   tips: string;
 
   @prop({ default: Date.now })
@@ -58,11 +58,11 @@ class Find {
   }
 
   public static async getFindById(this: ReturnModelType<typeof Find>, id: number) {
-    return await this.findOne({ id })
+    return await this.findOne({ id });
   }
 
   public static async getFindByShopId(this: ReturnModelType<typeof Find>, shopId: number) {
-    return await this.find({ shopId })
+    return await this.find({ shopId });
   }
 }
 

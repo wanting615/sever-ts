@@ -2,7 +2,7 @@ import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoos
 import { SubCategories } from "./public";
 
 //商铺分类
-@modelOptions({ options: { customName: 'categories' } })
+@modelOptions({ options: { customName: "categories" } })
 class Category {
   @prop()
   id: number;
@@ -27,17 +27,17 @@ class Category {
 
   //获取所有商店分类
   public static async getAllGategorys(this: ReturnModelType<typeof Category>) {
-    return this.find({ id: { $exists: true } }, { _id: 0, __v: 0 })
+    return this.find({ id: { $exists: true } }, { _id: 0, __v: 0 });
   }
 
   //获取所有商店分类
   public static async getCategoryById(this: ReturnModelType<typeof Category>, id: number) {
-    return this.find({ 'sub_categories.id': id })
+    return this.find({ "sub_categories.id": id });
   }
 }
 
 //首页商店分类
-@modelOptions({ options: { customName: 'entries' } })
+@modelOptions({ options: { customName: "entries" } })
 class IndexEntry {
   @prop()
   id: number;
@@ -72,4 +72,4 @@ class IndexEntry {
 const CategoryModel = getModelForClass(Category);
 const IndexEntryModel = getModelForClass(IndexEntry);
 
-export { Category, CategoryModel, IndexEntryModel }
+export { Category, CategoryModel, IndexEntryModel };

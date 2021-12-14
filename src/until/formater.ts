@@ -1,5 +1,5 @@
 export function useFormatTime(fmt: string, date: string | Date): string {
-  if (!date) return '';
+  if (!date) return "";
   if (typeof date === "string") date = new Date(date);
   const opt: { [k in string]: string } = {
     "Y+": date.getFullYear().toString(),        // 年
@@ -13,7 +13,7 @@ export function useFormatTime(fmt: string, date: string | Date): string {
   for (const k in opt) {
     const ret = new RegExp("(" + k + ")").exec(fmt);
     if (ret) {
-      fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+      fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")));
     }
   }
   return fmt;
@@ -27,12 +27,12 @@ export function useFormatTime(fmt: string, date: string | Date): string {
  */
 export function GetDateStr(dd: Date, AddDayCount: number) {
   dd.setDate(dd.getDate() + AddDayCount);//获取AddDayCount天后的日期
-  var y = dd.getFullYear();
-  var m = (dd.getMonth() + 1) < 10 ? "0" + (dd.getMonth() + 1) : (dd.getMonth() + 1);//获取当前月份的日期，不足10补0
-  var d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();//获取当前几号，不足10补0
-  console.log(y + "-" + m + "-" + d)
+  const y = dd.getFullYear();
+  const m = (dd.getMonth() + 1) < 10 ? "0" + (dd.getMonth() + 1) : (dd.getMonth() + 1);//获取当前月份的日期，不足10补0
+  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();//获取当前几号，不足10补0
+  console.log(y + "-" + m + "-" + d);
   return y + "-" + m + "-" + d;
-};
+}
 
 /**
  * 生成规则 订单id + 时间戳202108091655 + userid

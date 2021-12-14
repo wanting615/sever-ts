@@ -2,7 +2,7 @@ import Koa from "koa";
 import koaBody from "koa-body";
 import helmet from "koa-helmet";
 import cors from "@koa/cors";
-import json from 'koa-json';
+import json from "koa-json";
 import koaStatic from "koa-static";
 import KoaLogger from "koa-logger";
 import fs from "fs";
@@ -12,15 +12,15 @@ import moment from "moment";
 // import winston from "winston";
 import db from "./config/db";
 // import { logger } from "./config/logger";
-import { PathName } from './config/path';
-import { router } from "./router/router"
-import { config } from "./config/config"
+import { PathName } from "./config/path";
+import { router } from "./router/router";
+import { config } from "./config/config";
 
 
 
 
 //连接数据库
-db.connect()
+db.connect();
 
 const app = new Koa();
 // // error handler
@@ -31,16 +31,16 @@ app.use(helmet());
 
 //打印日志
 const koaLogger = KoaLogger((str) => {
-  console.log(moment().format('YYYY-MM-DD HH:mm:ss') + str)
-})
-app.use(koaLogger)
+  console.log(moment().format("YYYY-MM-DD HH:mm:ss") + str);
+});
+app.use(koaLogger);
 //解决跨域
 app.use(cors({
-  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization', 'Date'],
+  exposeHeaders: ["WWW-Authenticate", "Server-Authorization", "Date"],
   maxAge: 100,
   credentials: true,
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Custom-Header', 'anonymous'],
+  allowMethods: ["GET", "POST", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization", "Accept", "X-Custom-Header", "anonymous"],
 }));
 
 app.use(koaBody({
@@ -55,7 +55,7 @@ app.use(koaBody({
   }
 }));
 
-app.use(json())
+app.use(json());
 
 // Logger middleware -> use winston as logger (logging.ts with config)
 // app.use(logger(winston));
@@ -63,16 +63,16 @@ app.use(json())
 //静态文件路径
 // app.use(require('koa-static')(__dirname + PathName.STATICPATH));
 
-app.on('error', (err, ctx) => {
-  console.error('server error', err, ctx)
-})
+app.on("error", (err, ctx) => {
+  console.error("server error", err, ctx);
+});
 
 //注册路由
-app.use(router.routes())
+app.use(router.routes());
 
 
-app.use(koaStatic(__dirname + '/public'));
-app.use(koaStatic(__dirname + '/public/static'));
+app.use(koaStatic(__dirname + "/public"));
+app.use(koaStatic(__dirname + "/public/static"));
 //html
 app.use(async (ctx, next) => {
   //处理访问html页
@@ -85,10 +85,10 @@ app.use(async (ctx, next) => {
       filePath = path.join(__dirname, PathName.LOSTIMAGE);
       file = fs.readFileSync(filePath);
     }
-    ctx.set('content-type', 'text/html');
+    ctx.set("content-type", "text/html");
     ctx.body = file;
   }
   next();
-})
+});
 
 app.listen(config.port);
