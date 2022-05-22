@@ -62,6 +62,7 @@ app.on("error", (err, ctx) => {
 app.use(router_1.router.routes());
 app.use((0, koa_static_1.default)(__dirname + "/public"));
 app.use((0, koa_static_1.default)(__dirname + "/public/static"));
+app.use((0, koa_static_1.default)(__dirname + "/public/dist"));
 //html
 app.use(async (ctx, next) => {
     //处理访问html页
@@ -72,7 +73,7 @@ app.use(async (ctx, next) => {
             file = fs_1.default.readFileSync(filePath);
         }
         catch (error) {
-            filePath = path_1.default.join(__dirname, path_2.PathName.LOSTIMAGE);
+            filePath = path_1.default.join(__dirname, path_2.PathName.WXINDEX);
             file = fs_1.default.readFileSync(filePath);
         }
         ctx.set("content-type", "text/html");

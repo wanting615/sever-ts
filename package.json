@@ -9,11 +9,12 @@
     "copy-static-assets": "ts-node copyStaticAssets.ts",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "serve": "node dist/server.js",
-    "build": "npm run lint && npm run build-ts && npm run copy-static-assets",
+    "build": "npm run build-ts && npm run copy-static-assets",
     "start": "npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prd-first": "pm2 deploy ecosystem.config.js production setup",
-    "prd-update": "pm2 deploy ecosystem.config.js production"
+    "prd-update": "pm2 deploy ecosystem.config.js production",
+    "pm2": "pm2 start ./dist/server.js"
   },
   "author": "wanting",
   "license": "ISC",

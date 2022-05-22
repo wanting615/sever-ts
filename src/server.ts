@@ -73,6 +73,8 @@ app.use(router.routes());
 
 app.use(koaStatic(__dirname + "/public"));
 app.use(koaStatic(__dirname + "/public/static"));
+app.use(koaStatic(__dirname + "/public/dist"));
+
 //html
 app.use(async (ctx, next) => {
   //处理访问html页
@@ -82,7 +84,7 @@ app.use(async (ctx, next) => {
     try {
       file = fs.readFileSync(filePath);
     } catch (error) {
-      filePath = path.join(__dirname, PathName.LOSTIMAGE);
+      filePath = path.join(__dirname, PathName.WXINDEX);
       file = fs.readFileSync(filePath);
     }
     ctx.set("content-type", "text/html");
