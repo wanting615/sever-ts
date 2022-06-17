@@ -21,7 +21,7 @@ class RsaDecrypt {
   // }
 
 
-  public static decrypt(token: string) {
+  public static decrypt(token: string): string{
     let decryptedData;
     const str = decodeURIComponent(token);
     try {
@@ -29,7 +29,7 @@ class RsaDecrypt {
       decryptedData = rsa.decrypt(str, "utf8");
     } catch (error) {
       console.log(error);
-      return false;
+      return "";
     }
     return decryptedData;
   }
@@ -40,8 +40,8 @@ class RsaDecrypt {
    * @param {*} str eg:username=wanting&password=123456
    * @returns 
    */
-  public static strParse(paramsStr: string): any {
-    const object: any = {};
+  public static strParse(paramsStr: string): {[key in string]: string} {
+    const object: {[key in string]: string} = {};
     try {
       const strArr = paramsStr.split("&");
       for (let i = 0; i < strArr.length; i++) {
@@ -55,11 +55,11 @@ class RsaDecrypt {
     return object;
   }
 
-  public static encryption(password: string) {
+  public static encryption(password: string):  string{
     const newpassword = this.Md5(this.Md5(password).substr(2, 7) + this.Md5(password));
     return newpassword;
   }
-  public static Md5(password: string) {
+  public static Md5(password: string): string {
     const md5 = crypto.createHash("md5");
     return md5.update(password).digest("base64");
   }

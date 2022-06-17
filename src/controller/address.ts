@@ -8,7 +8,7 @@ export default class AddressController {
     latitude: { type: "string", required: true },
     longitude: { type: "string", required: true }
   })
-  static async getLocationAddress(ctx: Context) {
+  static async getLocationAddress(ctx: Context): Promise<void>{
     const { latitude, longitude } = ctx.request.query;
     if (latitude && longitude) {
       try {
@@ -38,7 +38,7 @@ export default class AddressController {
 
   @request("get", "/posstionByIp")
   @summary("通过ip获取本地精确地址")
-  static async getLocationByIp(ctx: Context) {
+  static async getLocationByIp(ctx: Context): Promise<void> {
     try {
       const result = await Address.guessPosition(ctx.request);
       ctx.body = {
@@ -60,7 +60,7 @@ export default class AddressController {
     from: { type: "string", required: true },
     to: { type: "string", required: true }
   })
-  static async getDistanceTime(ctx: Context) {
+  static async getDistanceTime(ctx: Context): Promise<void> {
     const { from, to } = ctx.request.query;
     if (!from || !to) {
       ctx.body = {

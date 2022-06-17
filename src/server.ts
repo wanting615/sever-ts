@@ -26,7 +26,7 @@ const app = new Koa();
 // // error handler
 // onerror(app);
 //安全标头
-app.use(helmet());
+// app.use(helmet());
 
 
 //打印日志
@@ -74,6 +74,7 @@ app.use(router.routes());
 app.use(koaStatic(__dirname + "/public"));
 app.use(koaStatic(__dirname + "/public/static"));
 app.use(koaStatic(__dirname + "/public/dist"));
+
 
 //html
 app.use(async (ctx, next) => {

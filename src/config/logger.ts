@@ -21,7 +21,7 @@ const logger = (winstonInstance: any): any => {
     ]
   });
 
-  return async (ctx: Context, next: () => Promise<any>): Promise<void> => {
+  return async (ctx: Context, next: () => Promise<undefined>): Promise<void> => {
 
     const start = new Date().getTime();
     try {

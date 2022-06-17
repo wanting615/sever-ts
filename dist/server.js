@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const koa_1 = __importDefault(require("koa"));
 const koa_body_1 = __importDefault(require("koa-body"));
-const koa_helmet_1 = __importDefault(require("koa-helmet"));
 const cors_1 = __importDefault(require("@koa/cors"));
 const koa_json_1 = __importDefault(require("koa-json"));
 const koa_static_1 = __importDefault(require("koa-static"));
@@ -25,7 +24,7 @@ const app = new koa_1.default();
 // // error handler
 // onerror(app);
 //安全标头
-app.use((0, koa_helmet_1.default)());
+// app.use(helmet());
 //打印日志
 const koaLogger = (0, koa_logger_1.default)((str) => {
     console.log((0, moment_1.default)().format("YYYY-MM-DD HH:mm:ss") + str);

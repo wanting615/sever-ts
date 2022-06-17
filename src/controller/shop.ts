@@ -1,15 +1,14 @@
-import { Context } from "koa";
+import { ContextRes } from "./../types/result";
 import { request, summary, path } from "koa-swagger-decorator";
 import { Filter, SortWay } from "../types/shop";
 import { CategoryModel } from "../model/category";
-import { ShopMenuModel, ShopModel, Shops } from "../model/shop";
+import { ShopMenuModel, ShopModel, Shops, ShopDataType, ShopMenuDataType} from "../model/shop";
 import Address from "../until/address";
-import { Result } from "../types/result";
 
 export default class ShopController {
   @request("get", "/shops/list")
   @summary("查询商店列表")
-  public static async getShopList(ctx: Context) {
+  public static async getShopList(ctx: ContextRes<ShopDataType[]>): Promise<void> {
     const {
       latitude,//纬度
       longitude,//经度
@@ -22,13 +21,13 @@ export default class ShopController {
       delivery_mode = [],//筛选配送方式
       support_ids = [], //筛选支持的商家属性
     } = ctx.request.query;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
     if (!latitude || !longitude) {//经纬度未传 return
-      result.message = "latitude,longitude不能为空";
+      ctx.body.message = "latitude,longitude不能为空";
       return;
     }
     const filter: Filter = {}; //过滤集合
@@ -111,65 +110,65 @@ export default class ShopController {
     } catch (error) {
       // qq地图达到上限后会导致加车失败，需优化
       console.log("从addressComoponent获取测距数据失败", error);
-      shopslist.map((item, index) => {
+      shopslist.map((item) => {
         return Object.assign(item, { distance: "10公里", order_lead_time: "40分钟" });
       });
     }
-    result.status = true;
-    result.message = "查询成功";
-    result.data = shopslist;
+    ctx.body.status = true;
+    ctx.body.message = "查询成功";
+    ctx.body.data = shopslist;
 
   }
 
   @request("get", "/shop/{shopId}")
   @summary("获取商店详情")
   @path({ shopId: { type: "number", required: true } })
-  public static async getShopById(ctx: Context) {
+  public static async getShopById(ctx:  ContextRes<ShopDataType>): Promise<void>{
     const { shopId } = ctx.validatedParams;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
     if (!shopId || !Number(shopId)) {
-      result.message = "餐馆id参数错误";
+      ctx.body.message = "餐馆id参数错误";
       return;
     }
 
     try {
       const data = await ShopModel.getShopById(shopId);
-      result.status = true;
-      result.message = "查询成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "查询成功";
+      ctx.body.data = data;
     } catch (error) {
       console.log(error);
-      result.message = "获取餐馆详情失败";
+      ctx.body.message = "获取餐馆详情失败";
     }
   }
 
   @request("get", "/shopMenu/{shopId}")
   @summary("获取餐馆食品menu")
   @path({ shopId: { type: "number", required: true } })
-  public static async getShopMenu(ctx: Context) {
+  public static async getShopMenu(ctx: ContextRes<ShopMenuDataType[]>): Promise<void>{
     const { shopId } = ctx.validatedParams;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
     if (!shopId || !Number(shopId)) {
-      result.message = "餐馆id参数错误";
+      ctx.body.message = "餐馆id参数错误";
       return;
     }
 
     try {
       const data = await ShopMenuModel.getShopMenu(shopId);
-      result.status = true;
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.data = data;
       return;
     } catch (error) {
       console.log(error);
-      result.message = "获取餐馆食品menu失败";
+      ctx.body.message = "获取餐馆食品menu失败";
     }
   }
 }

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const DB_URL = "mongodb://localhost/elm_database";
 class db {
-  static connect() {
+  static connect(): void{
     mongoose.connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true });
     mongoose.connection.on("connected", function () {
       console.log("mongoose connected success", DB_URL);

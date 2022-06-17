@@ -1,44 +1,41 @@
 import { Context } from "koa";
 import { body, middlewares, prefix, query, request, summary } from "koa-swagger-decorator";
-import { User, UserAddress, UserModel, UserInfoModel, UserAddressModel } from "../model/user";
+import { User, UserAddress, UserModel, UserInfoModel, UserAddressModel,  UserInfoDataModel } from "../model/user";
 import { IdsModel } from "../model/ids";
 import RsaDecrypt from "../until/rsa";
 import Address from "../until/address";
 import { useFormatTime } from "../until/formater";
 import { needLogin } from "../middleware/checkPermission";
 import { Result } from "../types/result";
+import { ContextRes } from "./../types/result";
 
 @prefix("/user")
 export default class UserController {
   @request("post", "/login")
   @summary("登陆")
   @body(User)
-  public static async login(ctx: Context): Promise<void> {
+  public static async login(ctx: ContextRes<UserInfoDataModel>): Promise<void> {
     const body = ctx.validatedBody;
-    const result: Result = { message: "", status: false, data: null };
+    ctx.body = { message: "", status: false, data: null };
     if (!body.token) {
-      result.message = "参数不能为空";
-      ctx.body = result;
+      ctx.body.message = "参数不能为空";
       return;
     }
 
     const paramsStr = RsaDecrypt.decrypt(body.token);
     if (!paramsStr) {
-      result.message = "参数错误";
-      ctx.body = result;
+      ctx.body.message = "参数错误";
       return;
     }
 
     const { username, password } = RsaDecrypt.strParse(paramsStr);
 
     if (!username) {
-      result.message = "请输入用户名";
-      ctx.body = result;
+      ctx.body.message = "请输入用户名";
       return;
     }
     if (!password) {
-      result.message = "请输入密码";
-      ctx.body = result;
+      ctx.body.message = "请输入密码";
       return;
     }
 
@@ -73,18 +70,17 @@ export default class UserController {
           registe_time
         });
         const userInfo = await doc.save();
-        result.status = true;
-        result.message = "注册成功";
-        result.data = userInfo;
+        ctx.body.status = true;
+        ctx.body.message = "注册成功";
+        ctx.body.data = userInfo;
       } else if (user.password.toString() !== passwordMd5) {//密码不对
-        result.message = "密码错误";
+        ctx.body.message = "密码错误";
       } else {
         const userInfo = await UserInfoModel.findUserInfo(user.user_id);
-        result.status = true;
-        result.message = "登陆成功";
-        result.data = userInfo;
-      } "";
-      ctx.body = result;
+        ctx.body.status = true;
+        ctx.body.message = "登陆成功";
+        ctx.body.data = userInfo;
+      }
     } catch (error) {
       console.log(error);
     }
@@ -99,7 +95,7 @@ export default class UserController {
       description: "admin user_id"
     }
   })
-  static async delUser(ctx: Context) {
+  static async delUser(ctx: Context): Promise<void> {
     const { user_id } = ctx.request.query;
     const user = await UserModel.findUserById(parseInt(user_id as string));
     if (user.user_id === 6) {
@@ -121,14 +117,14 @@ export default class UserController {
   @request("get", "/userInfo")
   @summary("查询用户详细信息")
   @middlewares([needLogin])
-  static async getUserInfo(ctx: any) {
+  static async getUserInfo(ctx: ContextRes<UserInfoDataModel>): Promise<void> {
+    ctx.body = {
+      status: false,
+      data: null,
+      message: ""
+    };
     try {
-      ctx.body = {
-        status: false,
-        data: null,
-        message: ""
-      };
-      const userInfo = await UserInfoModel.findUserInfo(ctx.query.user_id);
+      const userInfo = await UserInfoModel.findUserInfo(Number(ctx.query.user_id));
       ctx.body.status = true;
       ctx.body.message = "查询成功";
       ctx.body.data = userInfo;
@@ -141,7 +137,7 @@ export default class UserController {
   @summary("添加收货地址 or 更新收货地址")
   @middlewares([needLogin])
   @body(UserAddress)
-  static async addUserAddress(ctx: Context) {
+  static async addUserAddress(ctx: Context): Promise<void> {
     const {
       user_id,
       id,
@@ -208,7 +204,7 @@ export default class UserController {
   @query({
     id: { type: "number" }
   })
-  static async delUserAddress(ctx: Context) {
+  static async delUserAddress(ctx: Context): Promise<void> {
     try {
       const { id, user_id } = ctx.request.query;
       const result: Result = ctx.body = {
@@ -234,7 +230,7 @@ export default class UserController {
   @request("get", "/getUserAddress")
   @summary("获取收货地址")
   @middlewares([needLogin])
-  static async getUserAddress(ctx: Context) {
+  static async getUserAddress(ctx: Context): Promise<void> {
     const user_id = Number(ctx.request.query.user_id);
     const result: Result = ctx.body = {
       status: false,
@@ -274,7 +270,7 @@ export default class UserController {
   @query({
     from: { type: "string" }
   })
-  static async getUserAddressByTime(ctx: Context) {
+  static async getUserAddressByTime(ctx: Context): Promise<void> {
     const user_id = Number(ctx.request.query.user_id);
     const from = ctx.request.query.from;
     const result: Result = ctx.body = {

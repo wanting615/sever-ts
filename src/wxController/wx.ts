@@ -1,11 +1,15 @@
 import { Context } from "koa";
-import { request, summary, body, query } from "koa-swagger-decorator";
-import { WxClassModel, WxTypeModel } from "./wx-model";
-import { Result } from "../types/result";
+import { request, summary, body, query, middlewares } from "koa-swagger-decorator";
+import { WxDocModel, WxTypeModel, WxDocData} from "./wx-model";
+import { ContextRes} from "../types/result";
 import { IdsModel } from "../model/ids";
+import { sign } from "jsonwebtoken";
+import UntilService from "./until";
+import { needLogin } from "./middleware/needLogin"; 
 
 //微信小程序添加知识文档
 export default class WxController {
+
   @request("post", "/loginWx")
   @summary("微信小程序后台登陆")
   @body({
@@ -17,7 +21,7 @@ export default class WxController {
       type: "string"
     }
   })
-  async loginWx(ctx: Context) {
+  async loginWx(ctx: ContextRes<string>): Promise<void>{
     const { username, password } = ctx.request.body;
     if (username !== "admin" || password !== "123456") {
       ctx.body = {
@@ -26,10 +30,22 @@ export default class WxController {
       };
       return;
     }
+    const token = sign({username, password}, UntilService.tokenConfig.privateKey, { expiresIn: "1d"});
     ctx.body = {
       message: "登陆成功",
       status: true,
-      data: username + "&" + password
+      data: token
+    };
+  }
+
+  // --------------获取用户信息----------
+  @request("get","/userInfo")
+  @summary("获取用户信息")
+  @middlewares([needLogin])
+  async getUserInfo(ctx: ContextRes): Promise<void> {
+    ctx.body = {
+      status: true,
+      message: "获取用户信息成功"
     };
   }
 
@@ -55,39 +71,41 @@ export default class WxController {
       type: "string",
     }
   })
-  async addWxLearnInfo(ctx: Context) {
+  @middlewares([needLogin])
+  async addWxLearnInfo(ctx: ContextRes<WxDocData>): Promise<void> {
     const params = ctx.request.body;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
 
     if (!params.type && Number(params.type) !== 0) {
-      result.message = "请输入文档类型"; return;
+      ctx.body.message = "请输入文档类型"; return;
     }
-    const type = await WxTypeModel.getWxInfoByType(Number(params.type));
-    if (!type) {
-      result.message = "文档类型不存在"; return;
-    }
+    if (!params.title) { ctx.body.message = "请输入文档标题"; return; }
+    if (!params.content) { ctx.body.message = "内容不能为空"; return; }
 
-    if (!params.title) { result.message = "请输入文档标题"; return; }
-    if (!params.content) { result.message = "内容不能为空"; return; }
+    const wxType = await WxTypeModel.getWxInfoByType(Number(params.type));
+    if (!wxType) {
+      ctx.body.message = "文档类型不存在"; return;
+    }
+   
     try {
       const id = await IdsModel.getIds("wx_id");
-      const data = new WxClassModel({
+      const data = new WxDocModel({
         id,
         type: Number(params.type),
-        typeName: type.name,
+        typeName: wxType.name,
         contentType: params.contentType,
         title: params.title,
         content: params.content,
         autor: params.autor
       });
       await data.save();
-      result.status = true;
-      result.message = "上传成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "上传成功";
+      ctx.body.data = data;
     } catch (error) {
       console.log(error);
     }
@@ -101,26 +119,28 @@ export default class WxController {
       require: true
     }
   })
-  async delDoc(ctx: Context) {
+  @middlewares([needLogin])
+  async delDoc(ctx: ContextRes): Promise<void> {
     const { id } = ctx.request.query;
-    const result: Result = ctx.body = {
+   ctx.body = {
       status: false,
       message: "",
       data: null
     };
-    if (!id) { result.message = "id不能为空"; return; }
+    if (!id) { ctx.body.message = "id不能为空"; return; }
 
     try {
-      const data = await WxClassModel.getWxInfoById(Number(id));
-      if (!data) { result.message = "该文档不存在"; return; }
+      const data = await WxDocModel.getWxInfoById(Number(id));
+      if (!data) { ctx.body.message = "该文档不存在"; return; }
       if (data) {
-        data.remove();
-        result.status = true;
-        result.message = "删除成功";
+        data.disabled = 1;
+        await data.save();
+        ctx.body.status = true;
+        ctx.body.message = "删除成功";
       }
     } catch (error) {
       console.log(error);
-      result.message = "删除失败";
+      ctx.body.message = "删除失败";
     }
   }
 
@@ -150,33 +170,33 @@ export default class WxController {
       type: "string",
     }
   })
-  async updateWxLearnInfo(ctx: Context) {
+  @middlewares([needLogin])
+  async updateWxLearnInfo(ctx: ContextRes<WxDocData>): Promise<void> {
     const params = ctx.request.body;
-    const result: Result = ctx.body = {
+   ctx.body = {
       status: false,
       message: "",
       data: null
     };
-
-    if (!params.type && Number(params.type) !== 0) { result.message = "请输入文档类型"; return; }
+    if (!params.type && Number(params.type) !== 0) { ctx.body.message = "请输入文档类型"; return; }
     const type = await WxTypeModel.getWxInfoByType(Number(params.type));
-    if (!type) { result.message = "文档类型不存在"; return; }
-    if (!params.title) { result.message = "请输入文档标题"; return; }
-    if (!params.content) { result.message = "内容不能为空"; return; }
+    if (!type) { ctx.body.message = "文档类型不存在"; return; }
+    if (!params.title) { ctx.body.message = "请输入文档标题"; return; }
+    if (!params.content) { ctx.body.message = "内容不能为空"; return; }
 
     try {
-      const data = await WxClassModel.getWxInfoById(Number(params.id));
-      if (!data) { result.message = "该文档不存在!"; }
+      const data = await WxDocModel.getWxInfoById(Number(params.id));
+      if (!data) { ctx.body.message = "该文档不存在!"; }
       data.type = Number(params.type);
       data.typeName = type.name;
-      data.contentType = params.contentType;
-      data.title = params.title;
-      data.content = params.content;
-      data.autor = params.autor;
+      data.contentType = params.contentType as string;
+      data.title = params.title as string;
+      data.content = params.content as string;
+      data.autor = params.autor as string;
       await data.save();
-      result.status = true;
-      result.message = "更新成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "更新成功";
+      ctx.body.data = data;
     } catch (error) {
       console.log(error);
     }
@@ -189,11 +209,11 @@ export default class WxController {
     contentType: { type: "string", require: true },
     page: { type: "number", default: 1 },
   })
-  async getDocByType(ctx: Context) {
+  async getDocByType(ctx: Context): Promise<void> {
     const { type, contentType, page } = ctx.request.query;
     try {
-      const data = await WxClassModel.getDocByType(Number(type), contentType as string, Number(page));
-      const pages = await WxClassModel.getDocNumByType(Number(type), contentType as string);
+      const data = await WxDocModel.getDocByType(Number(type), contentType as string, Number(page));
+      const pages = await WxDocModel.getDocNumByType(Number(type), contentType as string);
       ctx.body = {
         status: true,
         message: "",

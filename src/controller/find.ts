@@ -1,27 +1,27 @@
 import { Context } from "koa";
 import { body, middlewares, query, request, summary } from "koa-swagger-decorator";
-import { FindModel } from "../model/finds";
+import { FindModel, FindDataType, ReplaysDetail } from "../model/finds";
 import { IdsModel } from "../model/ids";
 import { ShopModel } from "../model/shop";
 import { needLogin } from "../middleware/checkPermission";
 import { UserInfoModel } from "../model/user";
-import { Result } from "../types/result";
+import { ContextRes } from "./../types/result";
 
 export default class FindController {
   @request("post", "/addFind")
   @summary("添加发现")
-  async addFind(ctx: Context) {
+  async addFind(ctx: ContextRes<FindDataType>): Promise<void> {
     const { shopId, vedioPath, tips } = ctx.request.body;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
-    if (!shopId) { result.message = "请填写商店id"; return; }
+    if (!shopId) { ctx.body.message = "请填写商店id"; return; }
     try {
-      const findResult = await FindModel.getFindByShopId(shopId);
+      const findResult = await FindModel.getFindByShopId(Number(shopId));
       if (findResult && findResult.length > 0) {
-        result.message = "已存在了哦";
+        ctx.body.message = "已存在了哦";
         return;
       }
       const id = await IdsModel.getIds("find_id");
@@ -32,18 +32,18 @@ export default class FindController {
         tips
       });
       await data.save();
-      result.status = true;
-      result.message = "添加成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "添加成功";
+      ctx.body.data = data;
     } catch (error) {
-      result.message = "服务器异常";
+      ctx.body.message = "服务器异常";
       console.log(error);
     }
   }
 
   @request("get", "/getFind")
   @summary("获取发现")
-  public static async getFindAll(ctx: Context) {
+  public static async getFindAll(ctx: ContextRes<FindDataType[]>): Promise<void> {
     const { page = 1, limit = 10 } = ctx.request.query;
     try {
       console.log(FindModel);
@@ -84,25 +84,25 @@ export default class FindController {
     detail: { type: "string", require: true },
     id: { type: "string" }
   })
-  async replyFind(ctx: Context) {
+  async replyFind(ctx: ContextRes<ReplaysDetail>): Promise<void> {
     const { user_id, detail, id } = ctx.request.body;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
-    if (!id) { result.message = "回复id不能为空"; return; }
+    if (!id) { ctx.body.message = "回复id不能为空"; return; }
     try {
-      const userInfo = await UserInfoModel.findUserInfo(user_id);
+      const userInfo = await UserInfoModel.findUserInfo(Number(user_id));
       const findInfo = await FindModel.getFindById(Number(id));
       if (findInfo) {
         findInfo.replys++;
         findInfo.replaysDetails.push({
           replyId: findInfo.replys,
           username: userInfo.username,
-          userId: user_id,
+          userId: Number(user_id),
           userAvatar: userInfo.avatar,
-          detail: detail,
+          detail: detail as string,
         });
         findInfo.save();
         ctx.body = {
@@ -117,7 +117,7 @@ export default class FindController {
         };
       }
     } catch (error) {
-      result.message = "服务器异常";
+      ctx.body.message = "服务器异常";
       console.log(error);
     }
   }
@@ -128,7 +128,7 @@ export default class FindController {
   @query({
     id: { type: "string" }
   })
-  async findPraise(ctx: Context) {
+  async findPraise(ctx: Context): Promise<void> {
     const { id } = ctx.request.query;
     try {
       const find = await FindModel.getFindById(Number(id));

@@ -5,7 +5,7 @@ const fetch = require("node-fetch");
 腾讯地图和百度地图API统一调配组件
  */
 class Address {
-  tencentkey: string = "L3ABZ-H4P62-PMCUD-CBG5F-LXTX7-XGF5E";
+  tencentkey = "L3ABZ-H4P62-PMCUD-CBG5F-LXTX7-XGF5E";
 
 
   async fetch(url = "", data: any = {}, type = "GET", resType = "JSON") {

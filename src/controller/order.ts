@@ -1,14 +1,14 @@
 import { Context } from "koa";
 import { body, middlewaresAll, query, request, summary } from "koa-swagger-decorator";
 import { needLogin } from "./../middleware/checkPermission";
-import { OrderModel } from "../model/order";
+import { OrderModel, OrderDataType} from "../model/order";
 import { ShopModel } from "../model/shop";
 import { UserAddressModel } from "../model/user";
 import { IdsModel } from "../model/ids";
-import { Result } from "./../types/result";
 import { createOrderId } from "../until/formater";
 import { FoodModel } from "../model/food";
 import { HongbaoModel } from "../model/hongbao";
+import { ContextRes } from "../types/result";
 
 @middlewaresAll([needLogin])
 export default class OrderController {
@@ -19,7 +19,7 @@ export default class OrderController {
     limit: { type: "number" },
     status: { type: "number" }
   })
-  async getOrders(ctx: Context) {
+  async getOrders(ctx: Context): Promise<void>{
     const {
       user_id,
       page = 1,
@@ -66,7 +66,7 @@ export default class OrderController {
         message: "查询成功"
       };
     } catch (error) {
-      ctx.boyd = {
+      ctx.body = {
         status: false,
         message: "查询失败"
       };
@@ -79,7 +79,7 @@ export default class OrderController {
   @query({
     orderId: { type: "string" }
   })
-  async getOrderDetail(ctx: Context) {
+  async getOrderDetail(ctx: Context): Promise<void> {
     const params = ctx.request.query;
     try {
       const data = await OrderModel.getOrderById(params.orderId as string, Number(params.user_id));
@@ -133,21 +133,21 @@ export default class OrderController {
     remarks: { type: "sting", require: true },//备注
     hongbaoId: { type: "number" }//红包id
   })
-  async createOrder(ctx: Context) {
-    const params = ctx.request.body;
-    const result: Result = ctx.body = {
+  async createOrder(ctx: ContextRes<OrderDataType>): Promise<void>{
+    const params = ctx.request.body as any;
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
-    if (!params.addressId) { result.message = "地址不能位空"; return; }
-    if (!params.foodIds) { result.message = "食物id不能为空"; return; }
-    if (!params.tableware) { result.message = "餐具必选"; return; }
+    if (!params.addressId) { ctx.body.message = "地址不能位空"; return; }
+    if (!params.foodIds) { ctx.body.message = "食物id不能为空"; return; }
+    if (!params.tableware) { ctx.body.message = "餐具必选"; return; }
 
     try {
       //生成orderId
       const id = await IdsModel.getIds("order_id");
-      const orderId = createOrderId(id, ctx.request.body.user_id);
+      const orderId = createOrderId(id, Number(ctx.request.body.user_id));
 
       //计算价格 总原价 优惠后总价格 打包价格
       let originalTotalAmount = 0;//总原价
@@ -218,12 +218,12 @@ export default class OrderController {
         addressId: params.addressId,//用户配送地址id
       });
       data.save();
-      result.status = true;
-      result.message = "创建订单成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "创建订单成功";
+      ctx.body.data = data;
     } catch (error) {
       console.log(error);
-      result.message = "服务端异常,结算失败";
+      ctx.body.message = "服务端异常,结算失败";
     }
   }
 
@@ -232,25 +232,25 @@ export default class OrderController {
   @query({
     orderId: { type: "string", require: true }
   })
-  async payOrder(ctx: Context) {
+  async payOrder(ctx: ContextRes<OrderDataType>): Promise<void>{
     const { user_id, orderId } = ctx.request.query;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
     try {
       const data = await OrderModel.getOrderById(orderId as string, Number(user_id));
-      if (!data) { result.message = "订单不存在"; return; }
-      if (data.status !== 0) { result.message = "订单支付已超时"; return; }
+      if (!data) { ctx.body.message = "订单不存在"; return; }
+      if (data.status !== 0) { ctx.body.message = "订单支付已超时"; return; }
       data.status = 1;
       await data.save();
-      result.status = true;
-      result.message = "支付成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "支付成功";
+      ctx.body.data = data;
     } catch (error) {
       console.log(error);
-      result.message = "支付异常";
+      ctx.body.message = "支付异常";
     }
   }
 
@@ -259,22 +259,22 @@ export default class OrderController {
   @query({
     orderId: { type: "string", require: true }
   })
-  async comfirmReceipt(ctx: Context) {
+  async comfirmReceipt(ctx: ContextRes<OrderDataType>): Promise<void>{
     const { user_id, orderId } = ctx.request.query;
-    const result: Result = ctx.body = {
+    ctx.body = {
       status: false,
       message: "",
       data: null
     };
     try {
       const data = await OrderModel.getOrderById(orderId as string, Number(user_id));
-      if (!data) { result.message = "订单不存在"; return; }
-      if (data.status === 1) { result.message = "订单状态异常"; return; }
+      if (!data) { ctx.body.message = "订单不存在"; return; }
+      if (data.status === 1) { ctx.body.message = "订单状态异常"; return; }
       data.status = 4;
       await data.save();
-      result.status = true;
-      result.message = "取消订单成功";
-      result.data = data;
+      ctx.body.status = true;
+      ctx.body.message = "取消订单成功";
+      ctx.body.data = data;
     } catch (error) {
       console.log(error);
       ctx.message = "订单异常";

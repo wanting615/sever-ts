@@ -1,4 +1,5 @@
 import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
+import { ResultDataType } from "../types/result";
 import { Food } from "./food";
 
 @modelOptions({ schemaOptions: { _id: false } })
@@ -135,5 +136,6 @@ class Order {
     return this.findOne({ orderId, userId });
   }
 }
+export type OrderDataType = ResultDataType<Order>;
 
 export const OrderModel = getModelForClass(Order);
