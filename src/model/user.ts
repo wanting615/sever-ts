@@ -1,5 +1,4 @@
 import { DocumentType, getModelForClass, index, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
-import { ResultDataType } from "../types/result";
 import { Column_desc } from "../types/user";
 
 //用户
@@ -18,16 +17,16 @@ class User {
   public name: string;
 
   //查询用户
-  public static async findUser(this: ReturnModelType<typeof User>, username: string): Promise<UserDataModel> {
+  public static async findUser(this: ReturnModelType<typeof User>, username: string) {
     return this.findOne({ username });
   }
 
   //查询用户 by userid
-  public static async findUserById(this: ReturnModelType<typeof User>, user_id: number): Promise<UserDataModel> {
+  public static async findUserById(this: ReturnModelType<typeof User>, user_id: number) {
     return this.findOne({ user_id });
   }
   //删除用户
-  public static async delUser(this: ReturnModelType<typeof User>, user_id: number): Promise<unknown> {
+  public static async delUser(this: ReturnModelType<typeof User>, user_id: number) {
     return await this.deleteOne({ user_id });
   }
 
@@ -108,12 +107,12 @@ class UserInfo {
   public column_desc: Column_desc;
 
   //查询用户信息
-  public static async findUserInfo(this: ReturnModelType<typeof UserInfo>, user_id: number): Promise<UserInfoDataModel> {
+  public static async findUserInfo(this: ReturnModelType<typeof UserInfo>, user_id: number) {
     return this.findOne({ user_id }, { __v: 0 });
   }
 
   //删除用户信息
-  public static async delUserInfo(this: ReturnModelType<typeof UserInfo>, user_id: number): Promise<unknown> {
+  public static async delUserInfo(this: ReturnModelType<typeof UserInfo>, user_id: number) {
     return this.deleteOne({ user_id });
   }
 }
@@ -172,11 +171,11 @@ class UserAddress {
   @prop({ default: false })//是否默认
   public is_user_default?: boolean;
   //通过id 查询用户地址
-  public static async findUserAddressById(this: ReturnModelType<typeof UserAddress>, id: number): Promise<UserAddressDataModel> {
+  public static async findUserAddressById(this: ReturnModelType<typeof UserAddress>, id: number) {
     return this.findOne({ id }, { _id: 0, __v: 0 });
   }
   //通过user_id 查询用户地址
-  public static async findUserAddress(this: ReturnModelType<typeof UserAddress>, user_id: number): Promise<UserAddressDataModel[]> {
+  public static async findUserAddress(this: ReturnModelType<typeof UserAddress>, user_id: number) {
     return this.find({ user_id }, { _id: 0, __v: 0 });
   }
 
@@ -197,8 +196,5 @@ class UserAddress {
 const UserModel = getModelForClass(User);
 const UserInfoModel = getModelForClass(UserInfo);
 const UserAddressModel = getModelForClass(UserAddress);
-type UserDataModel = ResultDataType<User>;
-type UserInfoDataModel = ResultDataType<UserInfo>;
-type UserAddressDataModel = ResultDataType<UserAddress>;
 
-export { UserModel, UserInfoModel, UserAddressModel, User, UserAddress, UserDataModel, UserInfoDataModel, UserAddressDataModel};
+export { UserModel, UserInfoModel, UserAddressModel, User, UserAddress};

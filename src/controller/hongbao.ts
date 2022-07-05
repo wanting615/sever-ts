@@ -1,4 +1,3 @@
-import { Context } from "koa";
 import { query, request, summary, middlewaresAll } from "koa-swagger-decorator";
 import { needLogin } from "../middleware/checkPermission";
 import { IdsModel } from "../model/ids";
@@ -13,34 +12,21 @@ export default class HongbaoController {
   @query({
     status: { type: "number", require: true }
   })
-  async getRatings(ctx: Context) {
+  async getRatings(ctx: Ctx): Promise<void>{
     const params = ctx.request.query;
-    if (params.status === undefined) {
-      ctx.body = {
-        status: false,
-        messsage: "status不能为空"
-      };
-      return;
-    }
+    if (params.status === undefined) {ctx.fail("status不能为空");return;}
     try {
       const data = await HongbaoModel.getHongbaos(Number(params.user_id), Number(params.status));
-      ctx.body = {
-        status: true,
-        messsage: "获取红包成功",
-        data
-      };
+      ctx.success(data, "获取红包成功");
     } catch (error) {
       console.log(error);
-      ctx.body = {
-        status: false,
-        messsage: "获取红包失败"
-      };
+      ctx.fail("获取红包失败");
     }
   }
 
   @request("get", "/sendHongbaoKey")
   @summary("兑换红包")
-  async sendHongbaoKey(ctx: Context) {
+  async sendHongbaoKey(ctx: Ctx):Promise<void> {
     const user_id = ctx.request.query.user_id;
     const id = await IdsModel.getIds("hongbao_id");
     try {
@@ -67,16 +53,9 @@ export default class HongbaoController {
         present_status: 1,
         share_status: 1
       });
-      ctx.body = {
-        status: true,
-        message: "兑换成功",
-        data
-      };
+      ctx.success(data, "兑换成功");
     } catch (error) {
-      ctx.body = {
-        status: false,
-        message: "兑换失败",
-      };
+      ctx.fail("兑换失败");
     }
   }
 }

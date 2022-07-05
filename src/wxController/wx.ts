@@ -1,11 +1,10 @@
-import { Context } from "koa";
 import { request, summary, body, query, middlewares } from "koa-swagger-decorator";
-import { WxDocModel, WxTypeModel, WxDocData} from "./wx-model";
-import { ContextRes} from "../types/result";
+import { WxDocModel, WxTypeModel} from "./model/wx-model";
+import { WxUserModel } from "./model/wxUser-model";
 import { IdsModel } from "../model/ids";
 import { sign } from "jsonwebtoken";
 import UntilService from "./until";
-import { needLogin } from "./middleware/needLogin"; 
+import { needLogin } from "./middleware/needLogin";
 
 //微信小程序添加知识文档
 export default class WxController {
@@ -13,36 +12,24 @@ export default class WxController {
   @request("post", "/loginWx")
   @summary("微信小程序后台登陆")
   @body({
-    username: {//文档类型
-      type: "string",
-      require: true
-    },
-    password: {//内容类型
-      type: "string"
-    }
+    username: {type: "string",require: true},
+    password: {type: "string"}
   })
-  async loginWx(ctx: ContextRes<string>): Promise<void>{
+  async loginWx(ctx: Ctx): Promise<void>{
     const { username, password } = ctx.request.body;
     if (username !== "admin" || password !== "123456") {
-      ctx.body = {
-        message: "账户密码错误",
-        status: false
-      };
+      ctx.fail("账户密码错误");
       return;
     }
     const token = sign({username, password}, UntilService.tokenConfig.privateKey, { expiresIn: "1d"});
-    ctx.body = {
-      message: "登陆成功",
-      status: true,
-      data: token
-    };
+    ctx.success(token,"登陆成功");
   }
 
   // --------------获取用户信息----------
   @request("get","/userInfo")
   @summary("获取用户信息")
   @middlewares([needLogin])
-  async getUserInfo(ctx: ContextRes): Promise<void> {
+  async getUserInfo(ctx: Ctx): Promise<void> {
     ctx.body = {
       status: true,
       message: "获取用户信息成功"
@@ -51,44 +38,25 @@ export default class WxController {
 
   @request("post", "/addWxLearnInfo")
   @summary("微信小程序添加文档")
-  @body({
-    type: {//文档类型
-      type: "number",
-      require: true
-    },
-    contentType: {//内容类型
-      type: "string"
-    },
-    title: {//标题
-      type: "string",
-      require: true
-    },
-    content: {//内容
-      type: "string",
-      require: true
-    },
-    autor: {//作者
-      type: "string",
-    }
+  @body(
+    {type: {type: "number",require: true},//文档类型
+    contentType: {type: "string"},//内容类型
+    title: {type: "string",require: true},//标题
+    content: {type: "string",require: true},//内容
+    autor: {type: "string",}//作者
   })
   @middlewares([needLogin])
-  async addWxLearnInfo(ctx: ContextRes<WxDocData>): Promise<void> {
+  async addWxLearnInfo(ctx: Ctx): Promise<void> {
     const params = ctx.request.body;
-    ctx.body = {
-      status: false,
-      message: "",
-      data: null
-    };
-
     if (!params.type && Number(params.type) !== 0) {
-      ctx.body.message = "请输入文档类型"; return;
+      ctx.fail("请输入文档类型"); return;
     }
-    if (!params.title) { ctx.body.message = "请输入文档标题"; return; }
-    if (!params.content) { ctx.body.message = "内容不能为空"; return; }
+    if (!params.title) { ctx.fail("请输入文档标题"); return; }
+    if (!params.content) { ctx.fail("内容不能为空"); return; }
 
     const wxType = await WxTypeModel.getWxInfoByType(Number(params.type));
     if (!wxType) {
-      ctx.body.message = "文档类型不存在"; return;
+      ctx.fail("文档类型不存在"); return;
     }
    
     try {
@@ -100,12 +68,11 @@ export default class WxController {
         contentType: params.contentType,
         title: params.title,
         content: params.content,
-        autor: params.autor
+        autor: params.autor,
+        creatAt: new Date()
       });
       await data.save();
-      ctx.body.status = true;
-      ctx.body.message = "上传成功";
-      ctx.body.data = data;
+      ctx.success(data,"上传成功");
     } catch (error) {
       console.log(error);
     }
@@ -120,27 +87,21 @@ export default class WxController {
     }
   })
   @middlewares([needLogin])
-  async delDoc(ctx: ContextRes): Promise<void> {
+  async delDoc(ctx: Ctx): Promise<void> {
     const { id } = ctx.request.query;
-   ctx.body = {
-      status: false,
-      message: "",
-      data: null
-    };
-    if (!id) { ctx.body.message = "id不能为空"; return; }
+    if (!id) { ctx.fail("id不能为空"); return; }
 
     try {
       const data = await WxDocModel.getWxInfoById(Number(id));
-      if (!data) { ctx.body.message = "该文档不存在"; return; }
+      if (!data) { ctx.fail("该文档不存在"); return; }
       if (data) {
         data.disabled = 1;
         await data.save();
-        ctx.body.status = true;
-        ctx.body.message = "删除成功";
+        ctx.success(data,"删除成功");
       }
     } catch (error) {
       console.log(error);
-      ctx.body.message = "删除失败";
+      ctx.fail("删除失败");
     }
   }
 
@@ -171,22 +132,17 @@ export default class WxController {
     }
   })
   @middlewares([needLogin])
-  async updateWxLearnInfo(ctx: ContextRes<WxDocData>): Promise<void> {
+  async updateWxLearnInfo(ctx: Ctx): Promise<void> {
     const params = ctx.request.body;
-   ctx.body = {
-      status: false,
-      message: "",
-      data: null
-    };
-    if (!params.type && Number(params.type) !== 0) { ctx.body.message = "请输入文档类型"; return; }
+    if (!params.type && Number(params.type) !== 0) { ctx.fail("请输入文档类型"); return; }
     const type = await WxTypeModel.getWxInfoByType(Number(params.type));
-    if (!type) { ctx.body.message = "文档类型不存在"; return; }
-    if (!params.title) { ctx.body.message = "请输入文档标题"; return; }
-    if (!params.content) { ctx.body.message = "内容不能为空"; return; }
+    if (!type) { ctx.fail("文档类型不存在"); return; }
+    if (!params.title) { ctx.fail("请输入文档标题"); return; }
+    if (!params.content) { ctx.fail("内容不能为空"); return; }
 
     try {
       const data = await WxDocModel.getWxInfoById(Number(params.id));
-      if (!data) { ctx.body.message = "该文档不存在!"; }
+      if (!data) { ctx.fail("该文档不存在"); return;}
       data.type = Number(params.type);
       data.typeName = type.name;
       data.contentType = params.contentType as string;
@@ -194,9 +150,7 @@ export default class WxController {
       data.content = params.content as string;
       data.autor = params.autor as string;
       await data.save();
-      ctx.body.status = true;
-      ctx.body.message = "更新成功";
-      ctx.body.data = data;
+      ctx.success(data,"更新成功");
     } catch (error) {
       console.log(error);
     }
@@ -209,7 +163,7 @@ export default class WxController {
     contentType: { type: "string", require: true },
     page: { type: "number", default: 1 },
   })
-  async getDocByType(ctx: Context): Promise<void> {
+  async getDocByType(ctx: Ctx): Promise<void> {
     const { type, contentType, page } = ctx.request.query;
     try {
       const data = await WxDocModel.getDocByType(Number(type), contentType as string, Number(page));
@@ -222,6 +176,61 @@ export default class WxController {
       };
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  @request("get", "/getReadDoc")
+  @summary("阅读量")
+  @query({id: {type: "number",require: true}, token: {type: "string"}})
+  async getReadDoc(ctx: Ctx): Promise<void>{
+    try {
+      const { token, id } = ctx.request.query;
+      const data = await WxDocModel.getWxInfoById(Number(id));
+      const user = await WxUserModel.findUser(UntilService.verifywxToken(token as string));
+      if(!data || !user){ ctx.fail("用户未登录"); return; }
+      const views = user.views || [];
+      if(views.includes(data.id)){ ctx.fail("用户已阅读"); return; }
+      if(data.views) { 
+        data.views++;
+      }else{
+        data.views = 1;
+      }
+      if(views.length >= 50){ views.pop();} // 最多存储50条
+      views.unshift(data.id);
+      user.views = views;
+      await user.save();
+      await data.save();
+      ctx.success(null, "");
+    } catch (error) {
+      
+    }
+  }
+
+  @request("get", "/getPraises")
+  @summary("阅读量")
+  @query({id: {type: "number",require: true}, token: {type: "string"}})
+  async getPraises(ctx: Ctx): Promise<void>{
+    try {
+      const { token, id } = ctx.request.query;
+      if(!token || !id){ ctx.fail("token和id不能为空"); return; }
+      const data = await WxDocModel.getWxInfoById(Number(id));
+      const user = await WxUserModel.findUser(UntilService.verifywxToken(token as string));
+      if(!data || !user){ ctx.fail("用户未登录"); return; }
+      const praises = user.praises || [];
+      if(praises.includes(data.id)){ ctx.fail("用户已阅读"); return; }
+      if(data.praises) { 
+        data.praises++;
+      }else{
+        data.praises = 1;
+      }
+      if(praises.length >= 50){ praises.pop();} // 最多存储50条
+      praises.unshift(data.id);
+      user.views = praises;
+      await user.save();
+      await data.save();
+      ctx.success(null, "");
+    } catch (error) {
+      
     }
   }
 

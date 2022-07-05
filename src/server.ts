@@ -15,6 +15,7 @@ import db from "./config/db";
 import { PathName } from "./config/path";
 import { router } from "./router/router";
 import { config } from "./config/config";
+import routerResponse from "./until/result";
 
 
 
@@ -56,7 +57,7 @@ app.use(koaBody({
 }));
 
 app.use(json());
-
+app.use(routerResponse()); // 返回值统一
 // Logger middleware -> use winston as logger (logging.ts with config)
 // app.use(logger(winston));
 

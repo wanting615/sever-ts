@@ -25,7 +25,7 @@ export function useFormatTime(fmt: string, date: string | Date): string {
  * @param {*} AddDayCount 延后时间 
  * @returns 
  */
-export function GetDateStr(dd: Date, AddDayCount: number) {
+export function GetDateStr(dd: Date, AddDayCount: number): string {
   dd.setDate(dd.getDate() + AddDayCount);//获取AddDayCount天后的日期
   const y = dd.getFullYear();
   const m = (dd.getMonth() + 1) < 10 ? "0" + (dd.getMonth() + 1) : (dd.getMonth() + 1);//获取当前月份的日期，不足10补0
@@ -39,7 +39,7 @@ export function GetDateStr(dd: Date, AddDayCount: number) {
  * @param {*} orderId 订单id 
  * @param {*} userId 用户id
  */
-export function createOrderId(orderId: number, userId: number) {
+export function createOrderId(orderId: number, userId: number): string {
   const timeStr = useFormatTime("YYmmddHHMM", new Date());
   return orderId + timeStr + userId;
 }

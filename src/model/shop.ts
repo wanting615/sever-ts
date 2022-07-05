@@ -2,7 +2,6 @@ import { getModelForClass, modelOptions, prop,  ReturnModelType } from "@typegoo
 import { Activity, DeliveryMode, Identification, License, PiecewiseAgentFee, Support } from "./public";
 import { Filter, SortWay } from "../types/shop";
 import { Food } from "./food";
-import { ResultDataType } from "../types/result";
 
 
 @modelOptions({ options: { customName: "shops" }, schemaOptions: { _id: false } })
@@ -93,12 +92,12 @@ class Shops {
 
 
   //获取商铺列表
-  public static async getShops(this: ReturnModelType<typeof Shops>, filter: Filter, sortWay: SortWay, page: number, limit: number): Promise<ShopDataType[]>{
+  public static async getShops(this: ReturnModelType<typeof Shops>, filter: Filter, sortWay: SortWay, page: number, limit: number) {
     return this.find(filter, { _id: 0, __v: 0 }).sort(sortWay).limit(limit).skip((page - 1) * limit);
   }
 
   //获取商铺详情-id
-  public static async getShopById(this: ReturnModelType<typeof Shops>, shopId: number): Promise<ShopDataType> {
+  public static async getShopById(this: ReturnModelType<typeof Shops>, shopId: number) {
     return this.findOne({ id: shopId }, { _id: 0, __v: 0 });
   }
 }
@@ -128,7 +127,7 @@ class ShopMenu {
   identification: Food;
 
   //获取商铺食品--按分类
-  public static async getShopMenu(this: ReturnModelType<typeof ShopMenu>, shopId: number): Promise<ShopMenuDataType[]> {
+  public static async getShopMenu(this: ReturnModelType<typeof ShopMenu>, shopId: number){
     return this.find({ restaurant_id: shopId });
   }
 }
@@ -137,7 +136,5 @@ const ShopModel = getModelForClass(Shops);
 
 const ShopMenuModel = getModelForClass(ShopMenu);
 
-type ShopDataType = ResultDataType<Shops>;
-type ShopMenuDataType = ResultDataType<ShopMenu>;
 
-export { ShopModel, Shops, ShopMenuModel, ShopDataType, ShopMenuDataType};
+export { ShopModel, Shops, ShopMenuModel };

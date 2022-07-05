@@ -1,8 +1,7 @@
 import { request, summary, body, middlewares } from "koa-swagger-decorator";
-import { WxTypeData, WxTypeModel } from "./wx-model";
+import { WxTypeModel } from "./model/wx-model";
 import { IdsModel } from "../model/ids";
 import { needLogin } from "./middleware/needLogin";
-import { ContextRes } from "../types/result";
 import fs from "fs";
 import path from "path";
 
@@ -12,29 +11,17 @@ export default class WxController {
   @request("post", "/addWxtype")
   @summary("微信小程序添加文档类型")
   @body({
-    name: {//文档类型
-      type: "string",
-      require: true
-    },
-    contentTypes: {
-      type: "string",
-      require: true
-    },
-    iconUrl: {
-      type: "string",
-      require: true
-    }
+    name: {type: "string",require: true},
+    contentTypes: {type: "string",require: true},
+    iconUrl: {type: "string",require: true}
   })
   @middlewares([needLogin])
-  async addWxtype(ctx: ContextRes<WxTypeData>): Promise<void> {
+  async addWxtype(ctx: Ctx): Promise<void> {
     const { name, contentTypes, iconUrl } = ctx.request.body;
-    ctx.body = {
-      status: false,
-      message: "",
-    };
-    if (!name) { ctx.body.message = "请输入文档类型"; return; }
-    if (!contentTypes) { ctx.body.message = "请输入子文档类型"; return; }
-    if (!iconUrl) { ctx.body.message = "请上传文档类型icon"; }
+    
+    if (!name) { ctx.fail("请输入文档类型"); return; }
+    if (!contentTypes) { ctx.fail("请输入子文档类型"); return; }
+    if (!iconUrl) { ctx.fail("请上传文档类型icon"); }
     try {
       const arr = (contentTypes as string).split(",");
       const id = await IdsModel.getIds("wx_type_id");
@@ -46,25 +33,18 @@ export default class WxController {
         contentTypes: arr
       });
       await data.save();
-      ctx.body.status = true;
-      ctx.body.message = "添加成功";
-      ctx.body.data = data;
+      ctx.success(data,"添加成功");
     } catch (error) {
-      console.log(error);
-      ctx.body.message = "添加失败";
+      ctx.fail("添加失败");
     }
   }
 
   @request("get", "/getTypeList")
   @summary("获取所有文档类型")
-  async getTypeList(ctx: ContextRes<WxTypeData[]>): Promise<void> {
+  async getTypeList(ctx: Ctx): Promise<void> {
     try {
       const data = await WxTypeModel.getWxTypeAll();
-      ctx.body = {
-        status: true,
-        message: "",
-        data
-      };
+      ctx.success(data,"");
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +53,7 @@ export default class WxController {
   @request("post", "/uploadTypeImg")
   @summary("上传文档类型图片")
   @middlewares([needLogin])
-  async uploadTypeImg(ctx: ContextRes<string>): Promise<void> {
+  async uploadTypeImg(ctx: Ctx): Promise<void> {
     try {
       const file = ctx.request.files.file; // 获取上传文件
       // 创建可读流
@@ -93,10 +73,7 @@ export default class WxController {
 
     } catch (error) {
       console.log(error);
-      ctx.body = {
-        status: false,
-        message: "上传异常",
-      };
+      ctx.fail("上传异常");
     }
   }
 }

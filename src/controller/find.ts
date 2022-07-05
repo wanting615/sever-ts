@@ -1,27 +1,20 @@
-import { Context } from "koa";
 import { body, middlewares, query, request, summary } from "koa-swagger-decorator";
-import { FindModel, FindDataType, ReplaysDetail } from "../model/finds";
+import { FindModel, ReplaysDetail } from "../model/finds";
 import { IdsModel } from "../model/ids";
 import { ShopModel } from "../model/shop";
 import { needLogin } from "../middleware/checkPermission";
 import { UserInfoModel } from "../model/user";
-import { ContextRes } from "./../types/result";
 
 export default class FindController {
   @request("post", "/addFind")
   @summary("添加发现")
-  async addFind(ctx: ContextRes<FindDataType>): Promise<void> {
+  async addFind(ctx: Ctx): Promise<void> {
     const { shopId, vedioPath, tips } = ctx.request.body;
-    ctx.body = {
-      status: false,
-      message: "",
-      data: null
-    };
-    if (!shopId) { ctx.body.message = "请填写商店id"; return; }
+    if (!shopId) { ctx.fail("请填写商店id") ; return; }
     try {
       const findResult = await FindModel.getFindByShopId(Number(shopId));
       if (findResult && findResult.length > 0) {
-        ctx.body.message = "已存在了哦";
+        ctx.fail("已存在了哦");
         return;
       }
       const id = await IdsModel.getIds("find_id");
@@ -32,18 +25,16 @@ export default class FindController {
         tips
       });
       await data.save();
-      ctx.body.status = true;
-      ctx.body.message = "添加成功";
-      ctx.body.data = data;
+      ctx.success(data,"添加成功");
     } catch (error) {
-      ctx.body.message = "服务器异常";
+      ctx.fail("服务器异常");
       console.log(error);
     }
   }
 
   @request("get", "/getFind")
   @summary("获取发现")
-  public static async getFindAll(ctx: ContextRes<FindDataType[]>): Promise<void> {
+  public static async getFindAll(ctx: Ctx): Promise<void> {
     const { page = 1, limit = 10 } = ctx.request.query;
     try {
       console.log(FindModel);
@@ -61,11 +52,7 @@ export default class FindController {
           };
         }
       }
-      ctx.body = {
-        status: true,
-        message: "查询成功",
-        data: results
-      };
+      ctx.success(results,"查询成功");
     } catch (error) {
       ctx.body = {
         status: false,
@@ -84,14 +71,9 @@ export default class FindController {
     detail: { type: "string", require: true },
     id: { type: "string" }
   })
-  async replyFind(ctx: ContextRes<ReplaysDetail>): Promise<void> {
+  async replyFind(ctx: Ctx): Promise<void> {
     const { user_id, detail, id } = ctx.request.body;
-    ctx.body = {
-      status: false,
-      message: "",
-      data: null
-    };
-    if (!id) { ctx.body.message = "回复id不能为空"; return; }
+    if (!id) { ctx.fail("回复id不能为空");return; }
     try {
       const userInfo = await UserInfoModel.findUserInfo(Number(user_id));
       const findInfo = await FindModel.getFindById(Number(id));
@@ -105,19 +87,12 @@ export default class FindController {
           detail: detail as string,
         });
         findInfo.save();
-        ctx.body = {
-          status: true,
-          message: "回复成功",
-          data: findInfo.replaysDetails[findInfo.replaysDetails.length - 1]
-        };
+        ctx.success(findInfo.replaysDetails[findInfo.replaysDetails.length - 1],"回复成功");
       } else {
-        ctx.body = {
-          status: true,
-          message: "此条记录不存在",
-        };
+        ctx.fail("此条记录不存在");
       }
     } catch (error) {
-      ctx.body.message = "服务器异常";
+      ctx.fail("服务器异常");
       console.log(error);
     }
   }
@@ -128,22 +103,16 @@ export default class FindController {
   @query({
     id: { type: "string" }
   })
-  async findPraise(ctx: Context): Promise<void> {
+  async findPraise(ctx: Ctx): Promise<void> {
     const { id } = ctx.request.query;
     try {
       const find = await FindModel.getFindById(Number(id));
       if (find) {
         find.praises++;
         find.save();
-        ctx.body = {
-          status: true,
-          message: "点赞成功",
-        };
+        ctx.success(null, "点赞成功");
       } else {
-        ctx.body = {
-          status: false,
-          message: "该记录不存在"
-        };
+        ctx.fail("该记录不存在");
       }
     } catch (error) {
       console.log(error);

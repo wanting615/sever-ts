@@ -1,5 +1,4 @@
-import { Context } from "koa";
-import { query, request, summary } from "koa-swagger-decorator";
+import { middlewares, query, request, summary } from "koa-swagger-decorator";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -10,8 +9,8 @@ import { localPath } from "../config/path";
 export default class FindController {
   @request("post", "/fileUpload")
   @summary("添加文件")
-  // @middlewares([needLogin])
-  async addFind(ctx: Context) {
+  @middlewares([needLogin])
+  async addFind(ctx: Ctx): Promise<void>{
     try {
       const params = ctx.request.body;//上传其它的参数
       const file = ctx.request.files.file; // 获取上传文件
@@ -27,7 +26,7 @@ export default class FindController {
       console.log("文件的MD5是：%s", fileHash);
 
       const result = await FileModel.findFilesByFileHash(fileHash);
-      // if (!params.shopId) { ctx.body = { status: false, message: '商店id不能为空' }; return; }
+      if (!params.shopId) { ctx.fail("商店id不能为空"); return; }
       if (!result) {
         // const addResult = await FileModel.addFiles(Number(params.userId), Number(params.shopId), params.projectId, file.name, filePath, file.type, fileHash, file.size);
         const addResult = new FileModel({
@@ -60,10 +59,7 @@ export default class FindController {
       }
     } catch (error) {
       console.log(error);
-      ctx.body = {
-        status: true,
-        message: "文件上传失败"
-      };
+      ctx.fail("文件上传失败");
     }
   }
 
@@ -72,7 +68,7 @@ export default class FindController {
   @query({
     fileId: { type: "number", require: true }
   })
-  async delFile(ctx: Context) {
+  async delFile(ctx: Ctx): Promise<void>{
     const fileId = ctx.request.query.fileId;
     try {
       const file = await FileModel.findFilesById(Number(fileId));
@@ -81,29 +77,17 @@ export default class FindController {
         if (fs.existsSync(filePath)) {
           await FileModel.delFiles(Number(fileId));
           fs.unlinkSync(filePath);
-          ctx.body = {
-            status: true,
-            message: "删除成功"
-          };
+          ctx.success(null, "删除成功");
         } else {
-          ctx.body = {
-            status: false,
-            message: "删除失败"
-          };
+          ctx.fail("删除失败");
         }
       } else {
-        ctx.body = {
-          status: false,
-          message: "文件不存在"
-        };
+        ctx.fail("文件不存在");
       }
 
     } catch (error) {
       console.log(error);
-      ctx.body = {
-        status: false,
-        message: "服务器异常"
-      };
+      ctx.fail("服务器异常");
     }
 
   }

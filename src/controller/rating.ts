@@ -8,7 +8,7 @@ export default class RatingController {
   @query({
     shopId: { type: "number", require: true }
   })
-  async getRatings(ctx: Context) {
+  async getRatings(ctx: Context): Promise<void>{
     const shopId = ctx.query.shopId;
     const data = await RatingModel.getRatings(Number(shopId));
     ctx.body = {
@@ -23,7 +23,7 @@ export default class RatingController {
   @query({
     shopId: { type: "number", require: true }
   })
-  async getScores(ctx: Context) {
+  async getScores(ctx: Context): Promise<void> {
     const shopId = ctx.query.shopId;
     const data = await RatingModel.getScores(Number(shopId));
     ctx.body = {
@@ -38,7 +38,7 @@ export default class RatingController {
   @query({
     shopId: { type: "number", require: true }
   })
-  async getTags(ctx: Context) {
+  async getTags(ctx: Context): Promise<void> {
     const shopId = ctx.query.shopId;
     const data = await RatingModel.getTags(Number(shopId));
     ctx.body = {
