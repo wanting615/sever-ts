@@ -20,8 +20,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const shell = __importStar(require("shelljs"));
-shell.cp("-R", "src/public/images", "dist/public/");
-shell.cp("-R", "src/public/files", "dist/public/");
-shell.cp("-R", "src/public/static", "dist/public/");
-shell.cp("-R", "src/public/dist", "dist/public/");
+shell.cp("-R", "src/public/images", "dist/src/public/");
+shell.cp("-R", "src/public/files", "dist/src/public/");
+shell.cp("-R", "src/public/static", "dist/src/public/");
+shell.cp("-R", "src/public/dist", "dist/src/public/");
 //# sourceMappingURL=copyStaticAssets.js.map
