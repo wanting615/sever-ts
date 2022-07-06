@@ -7,11 +7,16 @@ class UntilService {
     }
     // 验证后台token
     verifyToken(token) {
-        const userInfo = (0, jsonwebtoken_1.verify)(token, this.tokenConfig.privateKey);
-        if (userInfo.password === "123456" && userInfo.username === "admin") {
-            return true;
+        try {
+            const userInfo = (0, jsonwebtoken_1.verify)(token, this.tokenConfig.privateKey);
+            if (userInfo.password === "123456" && userInfo.username === "admin") {
+                return true;
+            }
+            return false;
         }
-        return false;
+        catch (error) {
+            return false;
+        }
     }
     // 生成小程序token
     createToken(openid) {

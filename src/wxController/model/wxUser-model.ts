@@ -1,7 +1,7 @@
 import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
 
 // 微信用户
-@modelOptions({ schemaOptions: { collection: "wechatUser" } })
+@modelOptions({ schemaOptions: { collection: "wechatUser" },options: { allowMixed: 0} })
 class WxUser{
   @prop({required: true, unique: true})
   openid: string;
@@ -18,10 +18,10 @@ class WxUser{
   @prop({default: ""})
   avatarUrl?: string;
 
-  @prop({default: []}) // 阅读记录
+  @prop({type: Number, default: []}) // 阅读记录
   views?: number[];
 
-  @prop({default: []}) // 点赞记录
+  @prop({type: Number,default: []}) // 点赞记录
   praises?: number[];
 
   @prop({default: Date.now})

@@ -42,12 +42,12 @@ __decorate([
     __metadata("design:type", String)
 ], WxUser.prototype, "avatarUrl", void 0);
 __decorate([
-    (0, typegoose_1.prop)({ default: [] }) // 阅读记录
+    (0, typegoose_1.prop)({ type: Number, default: [] }) // 阅读记录
     ,
     __metadata("design:type", Array)
 ], WxUser.prototype, "views", void 0);
 __decorate([
-    (0, typegoose_1.prop)({ default: [] }) // 点赞记录
+    (0, typegoose_1.prop)({ type: Number, default: [] }) // 点赞记录
     ,
     __metadata("design:type", Array)
 ], WxUser.prototype, "praises", void 0);
@@ -56,7 +56,7 @@ __decorate([
     __metadata("design:type", Date)
 ], WxUser.prototype, "creatAt", void 0);
 WxUser = WxUser_1 = __decorate([
-    (0, typegoose_1.modelOptions)({ schemaOptions: { collection: "wechatUser" } })
+    (0, typegoose_1.modelOptions)({ schemaOptions: { collection: "wechatUser" }, options: { allowMixed: 0 } })
 ], WxUser);
 // 文档意见提交
 let WxFeedBack = WxFeedBack_1 = class WxFeedBack {
