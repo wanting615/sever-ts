@@ -39,6 +39,37 @@ export default class WxController {
     }
   }
 
+  @request("post", "/updateWxtype")
+  @summary("微信小程序添加文档类型")
+  @body({
+    name: {type: "string",require: true},
+    contentTypes: {type: "string",require: true},
+    iconUrl: {type: "string",require: true},
+    id: {type: "number", require: true}
+  })
+  @middlewares([needLogin])
+  async updateWxtype(ctx: Ctx): Promise<void> {
+    const { id, name, contentTypes, iconUrl } = ctx.request.body;
+    if(!id){ctx.fail("文档不存在"); return;}
+    if (!name) { ctx.fail("请输入文档类型"); return; }
+    if (!contentTypes) { ctx.fail("请输入子文档类型"); return; }
+    if (!iconUrl) { ctx.fail("请上传文档类型icon"); }
+    try {
+      const data = await WxTypeModel.getWxTypeById(Number(id));
+      if(!data){ctx.fail("文档不存在"); return; }
+      const arr = (contentTypes as string).split(",");
+      data.name = name;
+      data.contentTypes = arr;
+      data.iconUrl = iconUrl;
+      await data.save();
+      ctx.success(data,"更新成功");
+    } catch (error) {
+      console.log(error);
+      ctx.fail("更新失败");
+    }
+  }
+
+
   @request("get", "/getTypeList")
   @summary("获取所有文档类型")
   async getTypeList(ctx: Ctx): Promise<void> {
@@ -60,7 +91,7 @@ export default class WxController {
       if (Array.isArray(file)) { return; }
       const reader = fs.createReadStream(file.path);
       //assets/icons/
-      const filePath = path.join(path.resolve(__dirname, ".."), "public/static/assets/icons/") + `${file.name}`;
+      const filePath = path.join(path.resolve(__dirname, "../.."), "webContent/static/assets/icons/") + `${file.name}`;
       // 创建可写流
       const upStream = fs.createWriteStream(filePath);
       // 可读流通过管道写入可写流

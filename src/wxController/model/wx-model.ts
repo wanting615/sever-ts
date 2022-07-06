@@ -22,7 +22,7 @@ class WxType {
   creatAt?: Date;//创建时间
 
   public static async getWxTypeById(this: ReturnModelType<typeof WxType>, id: number) {
-    return this.findOne({ id }, { _id: 0, __v: 0 });
+    return this.findOne({ id }, { __v: 0 });
   }
 
   public static async getWxInfoByType(this: ReturnModelType<typeof WxType>, type: number) {

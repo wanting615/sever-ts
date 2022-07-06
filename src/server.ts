@@ -71,28 +71,31 @@ app.on("error", (err, ctx) => {
 //注册路由
 app.use(router.routes());
 
-
-app.use(koaStatic(__dirname + "/public"));
-app.use(koaStatic(__dirname + "/public/static"));
-app.use(koaStatic(__dirname + "/public/dist"));
-
-
+app.use(koaStatic(path.resolve(__dirname,"..") + "/webContent/images"));
+app.use(koaStatic(path.resolve(__dirname,"..") + "/webContent/static"));
+app.use(koaStatic(path.resolve(__dirname,"..") + "/webContent/dist"));
+app.use(koaStatic(path.resolve(__dirname,"..") + "/webContent/files"));
 //html
 app.use(async (ctx, next) => {
-  //处理访问html页
-  if (!ctx.url || ctx.url === "/" || ctx.url.indexOf("html") !== -1) {
-    let filePath = path.join(__dirname, "/public/static" + ctx.url);
-    let file = null;
+  //处理404
+  if(ctx.status === 404){
+    const filePath = path.join(path.resolve(__dirname,".."), "/webContent/static/404.html");
+    let file;
     try {
       file = fs.readFileSync(filePath);
+      ctx.set("content-type", "text/html");
+      ctx.body = file;
     } catch (error) {
-      filePath = path.join(__dirname, PathName.WXINDEX);
-      file = fs.readFileSync(filePath);
+      ctx.body = "404";
     }
-    ctx.set("content-type", "text/html");
-    ctx.body = file;
+    next();
   }
-  next();
+  try {
+   await next();
+  } catch (error) { //异常处理
+    ctx.body = error;
+  }
 });
+
 
 app.listen(config.port);

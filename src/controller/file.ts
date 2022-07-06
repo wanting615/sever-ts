@@ -17,7 +17,7 @@ export default class FindController {
       // 创建可读流
       if (Array.isArray(file)) { return; }
       const reader = fs.createReadStream(file.path);
-      const filePath = path.join(path.resolve(__dirname, ".."), "public/files/") + `${file.name}`;
+      const filePath = path.join(path.resolve(__dirname, "../.."), "webContent/files/") + `${file.name}`;
       //生成hash 校验是否上传相同文件
       const fsHash = crypto.createHash("md5");
       const buffer = fs.readFileSync(file.path);

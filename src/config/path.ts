@@ -1,7 +1,7 @@
 export const PathName = {
-  "STATICPATH": "./public/",
-  "LOSTIMAGE": "/public/static/index.html",
-  "WXINDEX": "/public/dist/index.html",
-  "FILEPATH": "/public/files/"
+  "STATICPATH": "/webContent/",
+  "LOSTIMAGE": "/webContent/static/index.html",
+  "WXINDEX": "/webContent/dist/index.html",
+  "FILEPATH": "/webContent/files/"
 };
-export const localPath = process.env.NODE_ENV === "product" ? "http://121.5.32.253:3000" : "http://localhost:3000";
+export const localPath = process.env.NODE_ENV === "product" ? "https://wanting615.com.cn/" : "http://localhost:3000";
