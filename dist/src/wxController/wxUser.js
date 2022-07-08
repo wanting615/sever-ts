@@ -144,6 +144,65 @@ class WxUser {
         catch (error) {
         }
     }
+    async getViews(ctx) {
+        const { token, page } = ctx.request.body;
+        const openid = until_1.default.verifywxToken(token);
+        if (!openid) {
+            ctx.fail("未登录");
+            return;
+        }
+        try {
+            const userData = await wxUser_model_1.WxUserModel.findOne({ openid });
+            const docData = await wxUser_model_1.WxUserModel.findOne({ openid }).populate({
+                path: "views",
+                options: {
+                    limit: 10,
+                    skip: (page - 1) * 10
+                }
+            });
+            let history = [];
+            if (docData) {
+                history = docData.views;
+            }
+            ctx.success({
+                history,
+                pages: userData.views ? Math.ceil(userData.views.length / 10) : 0
+            }, "查询成功");
+        }
+        catch (error) {
+            console.log(error);
+            ctx.fail("查询失败");
+        }
+    }
+    async getPraised(ctx) {
+        const { token, page } = ctx.request.body;
+        const openid = until_1.default.verifywxToken(token);
+        if (!openid) {
+            ctx.fail("未登录");
+            return;
+        }
+        try {
+            const userData = await wxUser_model_1.WxUserModel.findOne({ openid });
+            const docData = await wxUser_model_1.WxUserModel.findOne({ openid }).populate({
+                path: "praises",
+                options: {
+                    limit: 10,
+                    skip: (page - 1) * 10
+                }
+            });
+            let history = [];
+            if (docData) {
+                history = docData.praises;
+            }
+            ctx.success({
+                history,
+                pages: userData.praises ? Math.ceil(userData.praises.length / 10) : 0
+            }, "查询成功");
+        }
+        catch (error) {
+            ctx.fail("查询失败");
+        }
+    }
 }
 __decorate([
     (0, koa_swagger_decorator_1.request)("post", "/wxLogin"),
@@ -195,5 +254,19 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], WxUser.prototype, "WxFeedBack", null);
+__decorate([
+    (0, koa_swagger_decorator_1.request)("post", "/getViews"),
+    (0, koa_swagger_decorator_1.summary)("获取文档阅读历史记录"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], WxUser.prototype, "getViews", null);
+__decorate([
+    (0, koa_swagger_decorator_1.request)("post", "/getPraised"),
+    (0, koa_swagger_decorator_1.summary)("获取点赞记录"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], WxUser.prototype, "getPraised", null);
 exports.default = WxUser;
 //# sourceMappingURL=wxUser.js.map

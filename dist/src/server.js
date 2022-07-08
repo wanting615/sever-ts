@@ -79,11 +79,13 @@ app.use(async (ctx, next) => {
         }
         next();
     }
-    try {
-        await next();
-    }
-    catch (error) { //异常处理
-        ctx.body = error;
+    else {
+        try {
+            await next();
+        }
+        catch (error) { //异常处理
+            ctx.body = error;
+        }
     }
 });
 app.listen(config_1.config.port);

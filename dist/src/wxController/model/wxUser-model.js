@@ -12,6 +12,7 @@ var WxUser_1, WxFeedBack_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WxFeedBackModel = exports.WxUserModel = void 0;
 const typegoose_1 = require("@typegoose/typegoose");
+const mongoose_1 = require("mongoose");
 // 微信用户
 let WxUser = WxUser_1 = class WxUser {
     static async findUser(openid) {
@@ -42,12 +43,12 @@ __decorate([
     __metadata("design:type", String)
 ], WxUser.prototype, "avatarUrl", void 0);
 __decorate([
-    (0, typegoose_1.prop)({ type: Number, default: [] }) // 阅读记录
+    (0, typegoose_1.prop)({ type: mongoose_1.Schema.Types.ObjectId, ref: "WxDoc", default: [] }) // 阅读记录
     ,
     __metadata("design:type", Array)
 ], WxUser.prototype, "views", void 0);
 __decorate([
-    (0, typegoose_1.prop)({ type: Number, default: [] }) // 点赞记录
+    (0, typegoose_1.prop)({ type: mongoose_1.Schema.Types.ObjectId, ref: "WxDoc", default: [] }) // 点赞记录
     ,
     __metadata("design:type", Array)
 ], WxUser.prototype, "praises", void 0);

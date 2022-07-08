@@ -162,7 +162,7 @@ class WxController {
                 return;
             }
             const views = user.views || [];
-            if (views.includes(data.id)) {
+            if (views.includes(data._id)) {
                 ctx.fail("用户已阅读");
                 return;
             }
@@ -175,7 +175,7 @@ class WxController {
             if (views.length >= 50) {
                 views.pop();
             } // 最多存储50条
-            views.unshift(data.id);
+            views.unshift(data._id);
             user.views = views;
             await user.save();
             await data.save();
@@ -198,7 +198,7 @@ class WxController {
                 return;
             }
             const praises = user.praises || [];
-            if (praises.includes(data.id)) {
+            if (praises.includes(data._id)) {
                 ctx.fail("用户已阅读");
                 return;
             }
@@ -211,8 +211,8 @@ class WxController {
             if (praises.length >= 50) {
                 praises.pop();
             } // 最多存储50条
-            praises.unshift(data.id);
-            user.views = praises;
+            praises.unshift(data._id);
+            user.praises = praises;
             await user.save();
             await data.save();
             ctx.success(null, "");
