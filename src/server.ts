@@ -89,12 +89,14 @@ app.use(async (ctx, next) => {
       ctx.body = "404";
     }
     next();
+  }else{
+    try {
+      await next();
+    } catch (error) { //异常处理
+      ctx.body = error;
+    }
   }
-  try {
-   await next();
-  } catch (error) { //异常处理
-    ctx.body = error;
-  }
+  
 });
 
 

@@ -155,4 +155,69 @@ export default  class WxUser{
       
     }
   }
+
+  @request("post", "/getViews")
+  @summary("获取文档阅读历史记录")
+  async getViews(ctx: Ctx): Promise<void> {
+    const { token, page } = ctx.request.body;
+    const openid = UntilService.verifywxToken(token as string);
+    if(!openid){ 
+      ctx.fail("未登录");
+      return;
+    }
+    
+    try {
+      const userData =  await WxUserModel.findOne({openid});
+      const docData = await WxUserModel.findOne({openid}).populate({
+        path: "views",
+        options: {
+          limit: 10,
+          skip: (page -1 ) * 10
+        }
+      });
+      let history: unknown = [];
+      if(docData){
+        history = docData.views;
+      }
+      
+      ctx.success({
+        history,
+        pages: userData.views ? Math.ceil(userData.views.length / 10) : 0
+      }, "查询成功");
+    } catch (error) {
+      console.log(error);
+      ctx.fail("查询失败");
+    }    
+  }
+  @request("post", "/getPraised")
+  @summary("获取点赞记录")
+  async getPraised(ctx: Ctx): Promise<void> {
+    const { token, page } = ctx.request.body;
+    const openid = UntilService.verifywxToken(token as string);
+    if(!openid){ 
+      ctx.fail("未登录");
+      return;
+    }
+    
+    try {
+      const userData =  await WxUserModel.findOne({openid});
+      const docData = await WxUserModel.findOne({openid}).populate({
+        path: "praises",
+        options: {
+          limit: 10,
+          skip: (page -1 ) * 10
+        }
+      });
+      let history: unknown = [];
+      if(docData){
+        history = docData.praises;
+      }
+      ctx.success({
+        history,
+        pages: userData.praises ? Math.ceil(userData.praises.length / 10) : 0
+      }, "查询成功");
+    } catch (error) {
+      ctx.fail("查询失败");
+    }    
+  }
 }

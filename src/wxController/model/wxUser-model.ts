@@ -1,4 +1,5 @@
-import { getModelForClass, modelOptions, prop, ReturnModelType } from "@typegoose/typegoose";
+import { getModelForClass, modelOptions, prop, ReturnModelType, } from "@typegoose/typegoose";
+import { Schema } from "mongoose";
 
 // 微信用户
 @modelOptions({ schemaOptions: { collection: "wechatUser" },options: { allowMixed: 0} })
@@ -18,11 +19,11 @@ class WxUser{
   @prop({default: ""})
   avatarUrl?: string;
 
-  @prop({type: Number, default: []}) // 阅读记录
-  views?: number[];
+  @prop({type: Schema.Types.ObjectId,ref: "WxDoc" ,default: []}) // 阅读记录
+  views?:  Schema.Types.ObjectId[];
 
-  @prop({type: Number,default: []}) // 点赞记录
-  praises?: number[];
+  @prop({type: Schema.Types.ObjectId,ref: "WxDoc", default: []}) // 点赞记录
+  praises?:  Schema.Types.ObjectId[];
 
   @prop({default: Date.now})
   creatAt?: Date;//创建时间
