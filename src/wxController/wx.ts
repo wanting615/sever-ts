@@ -234,4 +234,16 @@ export default class WxController {
     }
   }
 
+  @request("get","/getNewsDoc")
+  @summary("获取最新文档")
+  @query({page: {type: "number"}})
+  async getNewsDoc(ctx: Ctx): Promise<void> {
+    try{
+      const { page } = ctx.request.query;
+      const data = await WxDocModel.getDocByTime(Number(page));
+      ctx.success(data,"查询成功");
+    }catch(error){
+      ctx.fail("查询失败");
+    }
+  }
 }

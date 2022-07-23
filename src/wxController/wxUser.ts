@@ -205,7 +205,8 @@ export default  class WxUser{
         path: "praises",
         options: {
           limit: 10,
-          skip: (page -1 ) * 10
+          skip: (page -1 ) * 10,
+          sort: {creatAt: -1}
         }
       });
       let history: unknown = [];

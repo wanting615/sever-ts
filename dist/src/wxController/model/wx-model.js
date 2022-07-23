@@ -69,6 +69,10 @@ let WxDoc = WxDoc_1 = class WxDoc {
     static async delDocById(id) {
         return this.remove({ id });
     }
+    //获取最新文档
+    static getDocByTime(page = 1, limit = 10) {
+        return this.find({ disabled: { $ne: 1 } }, { _v: 0, _id: 0 }).sort({ creatAt: -1 }).limit(limit).skip((page - 1) * limit);
+    }
 };
 __decorate([
     (0, typegoose_1.prop)({ required: true }),

@@ -89,6 +89,11 @@ class WxDoc {
   public static async delDocById(this: ReturnModelType<typeof WxDoc>, id: number) {
     return this.remove({ id });
   }
+
+  //获取最新文档
+  public static getDocByTime(this: ReturnModelType<typeof WxDoc>,page: number = 1, limit: number = 10){
+    return this.find({disabled: {$ne: 1}},{_v: 0, _id: 0}).sort({creatAt: -1}).limit(limit).skip((page - 1) * limit);
+  }
 }
 
 const WxTypeModel = getModelForClass(WxType);

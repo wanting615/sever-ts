@@ -220,6 +220,16 @@ class WxController {
         catch (error) {
         }
     }
+    async getNewsDoc(ctx) {
+        try {
+            const { page } = ctx.request.query;
+            const data = await wx_model_1.WxDocModel.getDocByTime(Number(page));
+            ctx.success(data, "查询成功");
+        }
+        catch (error) {
+            ctx.fail("查询失败");
+        }
+    }
 }
 __decorate([
     (0, koa_swagger_decorator_1.request)("post", "/loginWx"),
@@ -328,5 +338,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], WxController.prototype, "getPraises", null);
+__decorate([
+    (0, koa_swagger_decorator_1.request)("get", "/getNewsDoc"),
+    (0, koa_swagger_decorator_1.summary)("获取最新文档"),
+    (0, koa_swagger_decorator_1.query)({ page: { type: "number" } }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], WxController.prototype, "getNewsDoc", null);
 exports.default = WxController;
 //# sourceMappingURL=wx.js.map
