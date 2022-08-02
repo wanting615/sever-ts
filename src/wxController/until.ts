@@ -1,4 +1,5 @@
 import { JwtPayload, sign, verify } from "jsonwebtoken";
+import { readfile } from "../until/files";
 
 interface UserInfo extends JwtPayload{
   username: string;
@@ -8,10 +9,11 @@ interface UserInfo extends JwtPayload{
 class UntilService {
   tokenConfig = {privateKey: "wanting615"};
   // 验证后台token
-  verifyToken(token: string): boolean{
+  async verifyToken(token: string): Promise<boolean>{
    try {
       const userInfo:UserInfo   = verify(token,this.tokenConfig.privateKey) as UserInfo;
-      if( userInfo.password === "123456" && userInfo.username === "admin"){
+      const result = await readfile<{username: string, password: string}>("../../user.json");
+      if(result &&  userInfo.password === result.password && userInfo.username === result.username){
         return true;
       }
       return false;

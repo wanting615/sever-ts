@@ -19,16 +19,18 @@ const ids_1 = require("../model/ids");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const until_1 = __importDefault(require("./until"));
 const needLogin_1 = require("./middleware/needLogin");
+const files_1 = require("./../until/files");
 //微信小程序添加知识文档
 class WxController {
     async loginWx(ctx) {
         const { username, password } = ctx.request.body;
-        if (username !== "admin" || password !== "123456") {
-            ctx.fail("账户密码错误");
+        const result = await (0, files_1.readfile)("../../user.json");
+        if (result && result.username === username && result.password === password) {
+            const token = (0, jsonwebtoken_1.sign)({ username, password }, until_1.default.tokenConfig.privateKey, { expiresIn: "1d" });
+            ctx.success(token, "登陆成功");
             return;
         }
-        const token = (0, jsonwebtoken_1.sign)({ username, password }, until_1.default.tokenConfig.privateKey, { expiresIn: "1d" });
-        ctx.success(token, "登陆成功");
+        ctx.fail("账户密码错误");
     }
     // --------------获取用户信息----------
     async getUserInfo(ctx) {
@@ -161,16 +163,16 @@ class WxController {
                 ctx.fail("用户未登录");
                 return;
             }
-            const views = user.views || [];
-            if (views.includes(data._id)) {
-                ctx.fail("用户已阅读");
-                return;
-            }
+            // if(views.includes(data._id)){ ctx.fail("用户已阅读"); return; }
             if (data.views) {
                 data.views++;
             }
             else {
                 data.views = 1;
+            }
+            const views = user.views || [];
+            if (views.indexOf(data._id) !== -1) {
+                views.splice(views.indexOf(data._id), 1);
             }
             if (views.length >= 50) {
                 views.pop();
@@ -332,7 +334,7 @@ __decorate([
 ], WxController.prototype, "getReadDoc", null);
 __decorate([
     (0, koa_swagger_decorator_1.request)("get", "/getPraises"),
-    (0, koa_swagger_decorator_1.summary)("阅读量"),
+    (0, koa_swagger_decorator_1.summary)("点赞"),
     (0, koa_swagger_decorator_1.query)({ id: { type: "number", require: true }, token: { type: "string" } }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

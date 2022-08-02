@@ -1,15 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = require("jsonwebtoken");
+const files_1 = require("../until/files");
 class UntilService {
     constructor() {
         this.tokenConfig = { privateKey: "wanting615" };
     }
     // 验证后台token
-    verifyToken(token) {
+    async verifyToken(token) {
         try {
             const userInfo = (0, jsonwebtoken_1.verify)(token, this.tokenConfig.privateKey);
-            if (userInfo.password === "123456" && userInfo.username === "admin") {
+            const result = await (0, files_1.readfile)("../../user.json");
+            if (result && userInfo.password === result.password && userInfo.username === result.username) {
                 return true;
             }
             return false;

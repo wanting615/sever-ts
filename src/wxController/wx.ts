@@ -5,6 +5,7 @@ import { IdsModel } from "../model/ids";
 import { sign } from "jsonwebtoken";
 import UntilService from "./until";
 import { needLogin } from "./middleware/needLogin";
+import { readfile } from "./../until/files";
 
 //微信小程序添加知识文档
 export default class WxController {
@@ -17,12 +18,13 @@ export default class WxController {
   })
   async loginWx(ctx: Ctx): Promise<void>{
     const { username, password } = ctx.request.body;
-    if (username !== "admin" || password !== "123456") {
-      ctx.fail("账户密码错误");
+    const result = await readfile<{username: string, password: string}>("../../user.json");
+    if(result && result.username === username && result.password === password ){
+      const token = sign({username, password}, UntilService.tokenConfig.privateKey, { expiresIn: "1d"});
+      ctx.success(token,"登陆成功");
       return;
     }
-    const token = sign({username, password}, UntilService.tokenConfig.privateKey, { expiresIn: "1d"});
-    ctx.success(token,"登陆成功");
+    ctx.fail("账户密码错误");
   }
 
   // --------------获取用户信息----------
@@ -188,12 +190,15 @@ export default class WxController {
       const data = await WxDocModel.getWxInfoById(Number(id));
       const user = await WxUserModel.findUser(UntilService.verifywxToken(token as string));
       if(!data || !user){ ctx.fail("用户未登录"); return; }
-      const views = user.views || [];
-      if(views.includes(data._id)){ ctx.fail("用户已阅读"); return; }
+      // if(views.includes(data._id)){ ctx.fail("用户已阅读"); return; }
       if(data.views) { 
         data.views++;
       }else{
         data.views = 1;
+      }
+      const views = user.views || [];
+      if(views.indexOf(data._id) !== -1){
+        views.splice(views.indexOf(data._id), 1);
       }
       if(views.length >= 50){ views.pop();} // 最多存储50条
       views.unshift(data._id);
@@ -207,7 +212,7 @@ export default class WxController {
   }
 
   @request("get", "/getPraises")
-  @summary("阅读量")
+  @summary("点赞")
   @query({id: {type: "number",require: true}, token: {type: "string"}})
   async getPraises(ctx: Ctx): Promise<void>{
     try {
